@@ -7,7 +7,7 @@ public class Planet{
 	public double mass; // Its mass
 	public String imgFileName; // the name of the file that corresponds to the image that depicts the planet 
 
-	public static final double G = 6.67e-11; // gravitational constant
+	private static final double G = 6.67e-11; // gravitational constant
 
 	public Planet(double xP, double yP, double xV,
               double yV, double m, String img){
