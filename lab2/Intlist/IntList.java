@@ -99,6 +99,7 @@ public class IntList {
      * Returns a list consisting of the elements of A followed by the
      * * elements of B.  May NOT modify items of A.  Use 'new'.
      */
+    // Write no recursively
     public static IntList catenate(IntList A, IntList B) {
 
         if (A == null){
@@ -118,6 +119,19 @@ public class IntList {
         return dcatenate(p, B);
     }
 
+
+    // Write recursively
+    public static IntList catenate_recursive(IntList A, IntList B) {
+
+        if (A == null){
+            return B;
+        }
+
+        if (A.rest == null){
+            return new IntList(A.first, B);
+        }
+        return new IntList(A.first, catenate(A.rest, B));
+    }
 
 
 
