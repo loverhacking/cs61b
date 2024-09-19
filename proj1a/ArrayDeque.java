@@ -56,13 +56,14 @@ public class ArrayDeque<T> {
         }
     }
 
-    /** Removes and returns the item at the front of the deque. If no such item exists, returns null */
+    /** Removes and returns the item at the front of the deque.
+     * If no such item exists, returns null */
     public T removeFirst() {
         if (size == 0) {
             return null;
         }
         T item = array[0];
-        T[] temp = (T[]) new Object[length];
+        T[] temp = (T[]) new Object[size + 1];
         System.arraycopy(array, 1, temp, 0, size + 1);
         array = temp;
         length = array.length;
@@ -72,7 +73,8 @@ public class ArrayDeque<T> {
         return item;
     }
 
-    /** Removes and returns the item at the back of the deque. If no such item exists, returns null. */
+    /** Removes and returns the item at the back of the deque.
+     * If no such item exists, returns null. */
     public T removeLast() {
         if (size == 0) {
             return null;
@@ -117,12 +119,6 @@ public class ArrayDeque<T> {
         }
     }
 
-//    public static void main(String[] args) {
-//        ArrayDeque<Integer> deque = new ArrayDeque<>();
-//        deque.addFirst(0);
-//        deque.addFirst(1);
-//        deque.addFirst(2);
-//        System.out.println(deque.removeFirst());
-//    }
+
     
 }

@@ -73,7 +73,8 @@ public class LinkedListDeque<T> {
         }
     }
 
-    /** Removes and returns the item at the front of the deque. If no such item exists, returns null */
+    /** Removes and returns the item at the front of the deque.
+     * If no such item exists, returns null */
     public T removeFirst() {
 
         if (isEmpty()) {
@@ -93,7 +94,8 @@ public class LinkedListDeque<T> {
         return data;
     }
 
-    /** Removes and returns the item at the back of the deque. If no such item exists, returns null. */
+    /** Removes and returns the item at the back of the deque.
+     * If no such item exists, returns null. */
     public T removeLast() {
         if (isEmpty()) {
             return null;
@@ -126,7 +128,7 @@ public class LinkedListDeque<T> {
 
     }
 
-    public T getRecursive(Node<T> p, int index) {
+    private T getRecursive(Node<T> p, int index) {
         if (index == 0) {
             return p.data;
         } else if (index < 0) {
