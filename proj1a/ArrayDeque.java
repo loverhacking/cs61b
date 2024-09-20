@@ -23,11 +23,18 @@ public class ArrayDeque<T> {
             array = t;
             start = length / 2;
         }
+
+        if (isEmpty()) {
+            length = 8;
+            array = (T[]) new Object[length];
+            start = 5;
+        }
+
         array[start - 1] = item;
         start -= 1;
 
         size += 1;
-        narrow();
+
     }
 
     /** Adds an item of type T to the back of the deque */
@@ -38,7 +45,7 @@ public class ArrayDeque<T> {
         }
         array[start + size] = item;
         size += 1;
-        narrow();
+
     }
 
     /** Returns true if deque is empty, false otherwise. */
@@ -125,7 +132,21 @@ public class ArrayDeque<T> {
         }
     }
 
+    public static void main(String[] args) {
+        ArrayDeque<Integer> l = new ArrayDeque<>();
 
+
+        l.addFirst(0);
+        l.addFirst(1);
+        System.out.println(l.removeLast());
+        System.out.println(l.removeLast());
+        l.isEmpty();
+        l.isEmpty();
+        l.isEmpty();
+        l.addFirst(7);
+
+
+    }
 
 
     
