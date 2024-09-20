@@ -141,7 +141,7 @@ public class ArrayDeque<T> {
         if (index < 0 || index > array.length - 1) {
             return null;
         } else if (!iscircular) {
-            return array[index];
+            return array[index + start + 1];
         } else {
             return array[(start + index + 1) % length];
         }
@@ -163,7 +163,8 @@ public class ArrayDeque<T> {
 
             /** start -> length - 1 */
 
-            System.arraycopy(array, start + 1, temp, temp.length - (length - start) + 1, length - start - 1);
+            System.arraycopy(array, start + 1, temp,
+                    temp.length - (length - start) + 1, length - start - 1);
 
             start = temp.length - (length - start);
 
@@ -176,27 +177,33 @@ public class ArrayDeque<T> {
     private void narrow() {
         ratio = (double) size / length;
 
-        if (ratio < 0.25) {
+        if (ratio < 0.25 && ratio > 0) {
 
             T[] temp = (T[]) new Object[length / 2];
 
             if (!iscircular) {
-                System.arraycopy(array, start, temp, start / 2, size);
+                System.arraycopy(array, start + 1, temp, start / 2, size);
+                start = start / 2 - 1;
+                end = start + size + 1;
             } else {
                 /** 0 -> end */
                 System.arraycopy(array, 0, temp, 0, end);
 
                 /** start -> length - 1 */
 
-                System.arraycopy(array, start + 1, temp, temp.length - (length - start) + 1, length - start - 1);
+                System.arraycopy(array, start + 1, temp,
+                        temp.length - (length - start) + 1, length - start - 1);
 
                 start = temp.length - (length - start);
+
             }
 
             array = temp;
             length = array.length;
         }
     }
+
+    
 
 }
 
