@@ -154,11 +154,11 @@ public class ArrayDeque<T> {
     private void extend(T item) {
         T[] temp = (T[]) new Object[size * 2];
 
-        if (start == 0 && end == length - 1) {
-            System.arraycopy(array, start, temp, size / 2, size);
+        if (start == -1 && end == length) {
+            System.arraycopy(array, start + 1, temp, size / 2, size);
 
             start = size / 2 - 1;
-            end = start + size;
+            end = start + size + 1;
 
         } else {
 
@@ -206,5 +206,4 @@ public class ArrayDeque<T> {
             length = array.length;
         }
     }
-    
 }
