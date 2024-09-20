@@ -19,14 +19,16 @@ public class ArrayDeque<T> {
 
     /** Adds an item of type T to the front of the deque */
     public void addFirst(T item) {
-        if (size == length) {
-            extend(item);
-        }
 
         if (start < 0) {
             start = length - 1;
             iscircular = true;
         }
+
+        if (size == length) {
+            extend(item);
+        }
+
 
         array[start] = item;
 
@@ -38,14 +40,16 @@ public class ArrayDeque<T> {
     /** Adds an item of type T to the back of the deque */
     public void addLast(T item) {
 
-        if (size == length) {
-            extend(item);
-        }
 
         if (end == length) {
             end = 0;
             iscircular = true;
         }
+
+        if (size == length) {
+            extend(item);
+        }
+
 
         array[end] = item;
 
@@ -202,8 +206,4 @@ public class ArrayDeque<T> {
             length = array.length;
         }
     }
-
-    
-
 }
-
