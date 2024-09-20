@@ -35,6 +35,8 @@ public class ArrayDeque<T> {
 
         size += 1;
 
+        narrow();
+
     }
 
     /** Adds an item of type T to the back of the deque */
@@ -45,6 +47,8 @@ public class ArrayDeque<T> {
         }
         array[start + size] = item;
         size += 1;
+
+        narrow();
 
     }
 
@@ -131,23 +135,5 @@ public class ArrayDeque<T> {
             length = array.length;
         }
     }
-
-    public static void main(String[] args) {
-        ArrayDeque<Integer> l = new ArrayDeque<>();
-
-
-        l.addFirst(0);
-        l.addFirst(1);
-        System.out.println(l.removeLast());
-        System.out.println(l.removeLast());
-        l.isEmpty();
-        l.isEmpty();
-        l.isEmpty();
-        l.addFirst(7);
-
-
-    }
-
-
     
 }
