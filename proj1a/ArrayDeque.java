@@ -4,52 +4,53 @@ public class ArrayDeque<T> {
     private T[] array;
     private int length = 8;
     private int start;
+    private int end;
     private double ratio;
+    private boolean iscircular;
 
     public ArrayDeque() {
         array = (T[]) new Object[length];
-        start = 5;
+        start = 4;
+        end = 5;
         size = 0;
         ratio = (double) size / length;
+        iscircular = false;
     }
 
     /** Adds an item of type T to the front of the deque */
     public void addFirst(T item) {
-
-        if (start == 0)  {
-            T[] t = (T[]) new Object[size * 4];
-            length = t.length;
-            System.arraycopy(array, 0, t, length / 2, size);
-            array = t;
-            start = length / 2;
+        if (size == length) {
+            extend(item);
         }
 
-        if (isEmpty()) {
-            length = 8;
-            array = (T[]) new Object[length];
-            start = 5;
+        if (start < 0) {
+            start = length - 1;
+            iscircular = true;
         }
 
-        array[start - 1] = item;
-        start -= 1;
+        array[start] = item;
+
 
         size += 1;
-
-        narrow();
-
+        start -= 1;
     }
 
     /** Adds an item of type T to the back of the deque */
     public void addLast(T item) {
 
-        if (start + size == length) {
+        if (size == length) {
             extend(item);
         }
-        array[start + size] = item;
+
+        if (end == length) {
+            end = 0;
+            iscircular = true;
+        }
+
+        array[end] = item;
+
         size += 1;
-
-        narrow();
-
+        end += 1;
     }
 
     /** Returns true if deque is empty, false otherwise. */
@@ -64,26 +65,46 @@ public class ArrayDeque<T> {
 
     /** Prints the items in the deque from first to last, separated by a space. */
     public void printDeque() {
-        for (int i = start; i < start + size; i++) {
-            System.out.print(array[i] + " ");
+        if (start < end && !iscircular) {
+            for (int i = start + 1; i < end; i++) {
+                System.out.print(array[i] + " ");
+            }
+        } else {
+            /** if start > end, first print start -> length - 1 */
+            for (int i = start + 1; i < length; i++) {
+                System.out.print(array[i] + " ");
+            }
+            /** then print 0 -> end */
+            for (int i = 0; i < end; i++) {
+                System.out.print(array[i] + " ");
+            }
+
         }
     }
 
     /** Removes and returns the item at the front of the deque.
      * If no such item exists, returns null */
     public T removeFirst() {
+
         if (size == 0) {
             return null;
         }
 
-        T item = array[start];
-        array[start] = null;
+        T first;
+        if (start == length - 1) {
+            start = 0;
+            first = array[start];
+            iscircular = false;
+        } else {
+            start += 1;
+            first = array[start];
+            array[start] = null;
+        }
 
-        start += 1;
         size -= 1;
 
         narrow();
-        return item;
+        return first;
     }
 
     /** Removes and returns the item at the back of the deque.
@@ -92,14 +113,24 @@ public class ArrayDeque<T> {
         if (size == 0) {
             return null;
         }
-        T item = array[start + size - 1];
-        array[start + size - 1] = null;
 
+        T last;
+
+        if (end == 0) {
+            end = length - 1;
+            last = array[end];
+            iscircular = false;
+        } else {
+            end -= 1;
+            last = array[end];
+            array[end] = null;
+        }
 
         size -= 1;
 
         narrow();
-        return item;
+
+        return last;
 
     }
 
@@ -109,15 +140,34 @@ public class ArrayDeque<T> {
     public T get(int index) {
         if (index < 0 || index > array.length - 1) {
             return null;
+        } else if (!iscircular) {
+            return array[index];
+        } else {
+            return array[(start + index + 1) % length];
         }
-        return array[index + start];
     }
 
     private void extend(T item) {
-        T[] temp = (T[]) new Object[size * 4];
-        System.arraycopy(array, start, temp, start * 2, size);
-        start = start * 2;
-        temp[start + size] = item;
+        T[] temp = (T[]) new Object[size * 2];
+
+        if (start == 0 && end == length - 1) {
+            System.arraycopy(array, start, temp, size / 2, size);
+
+            start = size / 2 - 1;
+            end = start + size;
+
+        } else {
+
+            /** 0 -> end */
+            System.arraycopy(array, 0, temp, 0, end);
+
+            /** start -> length - 1 */
+
+            System.arraycopy(array, start + 1, temp, temp.length - (length - start) + 1, length - start - 1);
+
+            start = temp.length - (length - start);
+
+        }
         array = temp;
         length = array.length;
 
@@ -127,13 +177,26 @@ public class ArrayDeque<T> {
         ratio = (double) size / length;
 
         if (ratio < 0.25) {
-            T[] temp = (T[]) new Object[length / 2];
-            System.arraycopy(array, start, temp, start / 2, size);
 
-            start = start / 2;
+            T[] temp = (T[]) new Object[length / 2];
+
+            if (!iscircular) {
+                System.arraycopy(array, start, temp, start / 2, size);
+            } else {
+                /** 0 -> end */
+                System.arraycopy(array, 0, temp, 0, end);
+
+                /** start -> length - 1 */
+
+                System.arraycopy(array, start + 1, temp, temp.length - (length - start) + 1, length - start - 1);
+
+                start = temp.length - (length - start);
+            }
+
             array = temp;
             length = array.length;
         }
     }
-    
+
 }
+
