@@ -16,7 +16,10 @@ public class LinkedListDeque<T> {
 
     /** create an empty deque */
     public LinkedListDeque() {
-        sentinel = new Node<>(sentinel, null, sentinel);
+        sentinel = new Node<>(null, null, null);
+
+        sentinel.prev = sentinel;
+        sentinel.next = sentinel;
         size = 0;
     }
 
@@ -24,32 +27,28 @@ public class LinkedListDeque<T> {
     /** Adds an item of type T to the front of the deque */
     public void addFirst(T item) {
 
+        Node<T> p = new Node<>(null, item, null);
 
-        if (isEmpty()) {
-            sentinel.next = new Node<>(null, item, sentinel.next);
-            sentinel.next.prev = sentinel.next;
-            sentinel.next.next = sentinel.next;
-        } else {
-            sentinel.next = new Node<>(sentinel.next.prev, item, sentinel.next);
-            sentinel.next.prev.next = sentinel.next;
-        }
+        p.next = sentinel.next;
+        p.prev = sentinel;
+
+        sentinel.next.prev = p;
+        sentinel.next = p;
 
         size += 1;
     }
 
     /** Adds an item of type T to the back of the deque */
     public void addLast(T item) {
-        if (isEmpty()) {
-            addFirst(item);
-            return;
-        } else {
-            Node<T> p = new Node<>(null, item, null);
 
-            sentinel.next.prev.next = p;
-            p.prev = sentinel.next.prev;
-            sentinel.next.prev = p;
-            p.next = sentinel.next;
-        }
+        Node<T> p = new Node<>(null, item, null);
+
+        sentinel.prev.next = p;
+        p.prev = sentinel.prev;
+
+        p.next = sentinel;
+        sentinel.prev = p;
+
         size += 1;
 
     }
@@ -81,16 +80,12 @@ public class LinkedListDeque<T> {
             return null;
         }
 
-        Node<T> first = sentinel.next;
-        T data = first.data;
+        T data = sentinel.next.data;
 
-        first.next.prev = first.prev;
-        first.prev.next = first.next;
-
+        sentinel.next.next.prev = sentinel;
         sentinel.next = sentinel.next.next;
 
         size -= 1;
-
         return data;
     }
 
@@ -101,15 +96,12 @@ public class LinkedListDeque<T> {
             return null;
         }
 
+        T data = sentinel.prev.data;
 
-        Node<T> last = sentinel.next.prev;
+        sentinel.prev.prev.next = sentinel;
+        sentinel.prev = sentinel.prev.prev;
 
-        T data = last.data;
-
-        sentinel.next.prev = last.prev;
-        last.prev.next = sentinel.next;
         size -= 1;
-
         return data;
     }
 
@@ -142,5 +134,4 @@ public class LinkedListDeque<T> {
     public T getRecursive(int index) {
         return getRecursive(sentinel.next, index);
     }
-
 }
