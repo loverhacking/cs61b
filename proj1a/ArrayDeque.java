@@ -3,38 +3,40 @@ public class ArrayDeque<T> {
     private int size;
     private T[] array;
     private int length = 8;
+    private int start;
     private double ratio;
 
     public ArrayDeque() {
         array = (T[]) new Object[length];
+        start = 5;
         size = 0;
         ratio = (double) size / length;
     }
 
     /** Adds an item of type T to the front of the deque */
     public void addFirst(T item) {
-        if (size == 0) {
-            array[0] = item;
-        } else if (size == length) {
-            extend(item);
-        } else {
-            T[] temp = (T[]) new Object[length];
-            System.arraycopy(array, 0, temp, 1, size);
-            temp[0] = item;
-            array = temp;
-        }
-        size += 1;
 
+        if (start == 0)  {
+            T[] t = (T[]) new Object[size * 4];
+            length = t.length;
+            System.arraycopy(array, 0, t, length / 2, size);
+            array = t;
+            start = length / 2;
+        }
+        array[start - 1] = item;
+        start -= 1;
+
+        size += 1;
         narrow();
     }
 
     /** Adds an item of type T to the back of the deque */
     public void addLast(T item) {
 
-        if (size == length) {
+        if (start + size == length) {
             extend(item);
         }
-        array[size] = item;
+        array[start + size] = item;
         size += 1;
         narrow();
     }
@@ -51,7 +53,7 @@ public class ArrayDeque<T> {
 
     /** Prints the items in the deque from first to last, separated by a space. */
     public void printDeque() {
-        for (int i = 0; i < size; i++) {
+        for (int i = start; i < start + size; i++) {
             System.out.print(array[i] + " ");
         }
     }
@@ -62,11 +64,11 @@ public class ArrayDeque<T> {
         if (size == 0) {
             return null;
         }
-        T item = array[0];
-        T[] temp = (T[]) new Object[size + 1];
-        System.arraycopy(array, 1, temp, 0, size + 1);
-        array = temp;
-        length = array.length;
+
+        T item = array[start];
+        array[start] = null;
+
+        start += 1;
         size -= 1;
 
         narrow();
@@ -79,8 +81,10 @@ public class ArrayDeque<T> {
         if (size == 0) {
             return null;
         }
-        T item = array[size - 1];
-        array[size - 1] = null;
+        T item = array[start + size - 1];
+        array[start + size - 1] = null;
+
+
         size -= 1;
 
         narrow();
@@ -95,13 +99,14 @@ public class ArrayDeque<T> {
         if (index < 0 || index > array.length - 1) {
             return null;
         }
-        return array[index];
+        return array[index + start];
     }
 
     private void extend(T item) {
-        T[] temp = (T[]) new Object[size * 2];
-        System.arraycopy(array, 0, temp, 0, size);
-        temp[size] = item;
+        T[] temp = (T[]) new Object[size * 4];
+        System.arraycopy(array, start, temp, start * 2, size);
+        start = start * 2;
+        temp[start + size] = item;
         array = temp;
         length = array.length;
 
@@ -110,14 +115,17 @@ public class ArrayDeque<T> {
     private void narrow() {
         ratio = (double) size / length;
 
-        if (ratio > 1) {
+        if (ratio < 0.25) {
             T[] temp = (T[]) new Object[length / 2];
-            System.arraycopy(array, 0, temp, 0, size);
+            System.arraycopy(array, start, temp, start / 2, size);
 
+            start = start / 2;
             array = temp;
             length = array.length;
         }
     }
+
+
 
 
     
