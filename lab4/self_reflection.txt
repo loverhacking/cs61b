@@ -8,11 +8,11 @@ A:
 
 Q: What's something you felt proud of in your code, if anything?
 
-A:
+A: all tests passed finally
 
 Q: What's something that was particularly inelegant in your code, if anything?
 
-A:
+A: deal with special case(meet end condition) is repeat
 
 Q: What did you learn by talking to your partner about writing ArrayDeque?
 
@@ -20,11 +20,11 @@ A:
 
 Q: What do you wish you would have known before writing ArrayDeque, if anything?
 
-A:
+A: resize is a little tricky
 
 Q: If you wrote ArrayDeque again, what would you do differently, if anything?
 
-A:
+A: make deal with special case more general
 
 -----
 
@@ -36,7 +36,7 @@ A:
 
 Q: What's something you felt proud of in your code, if anything?
 
-A:
+A: circular link list is more easy to write than arraydeque.
 
 Q: What's something that was particularly inelegant in your code, if anything?
 
@@ -48,11 +48,11 @@ A:
 
 Q: What do you wish you would have known before writing LinkedListDeque, if anything?
 
-A:
+A: next and front point to an object
 
 Q: If you wrote LinkedListDeque again, what would you do differently, if anything?
 
-A:
+A: 
 
 -----
 
