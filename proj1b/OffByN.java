@@ -1,7 +1,7 @@
 
 public class OffByN implements CharacterComparator {
 
-    int charDistance;
+    private int charDistance;
 
     /** construct OffByN */
     OffByN(int N) {
