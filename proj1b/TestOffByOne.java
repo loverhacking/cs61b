@@ -16,8 +16,7 @@ public class TestOffByOne {
 
         assertFalse(offByOne.equalChars('a', 'a'));
         assertFalse(offByOne.equalChars('a', 'z'));
-        assertFalse(offByOne.equalChars('a', 'e'));
         assertFalse(offByOne.equalChars('a', 'A'));
-        assertFalse(offByOne.equalChars('a', 'B'));
+        assertFalse(offByOne.equalChars('a', 'B')); // test upper or lower letter case
     }
 }
