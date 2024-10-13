@@ -17,7 +17,7 @@ public class TestArrayDequeGold {
                 int flag = StdRandom.uniform(2);
                 int num = StdRandom.uniform(totalTestNum);
 
-                if (flag == 1) {
+                if (flag == 0) {
                     log = log + "addFirst(" + num + ")\n";
                     testArray.addFirst(num);
                     solArray.addFirst(num);
@@ -32,7 +32,7 @@ public class TestArrayDequeGold {
                 int num = StdRandom.uniform(totalTestNum);
 
                 Integer removeSolNum = 1;
-                Integer removeeStuNum = 1;
+                Integer removeStuNum = 1;
 
                 switch (flag) {
                     case 0:
@@ -46,19 +46,21 @@ public class TestArrayDequeGold {
                         solArray.addLast(num);
                         break;
                     case 2:
-                        log = log + "removeFirst(" + num + ")\n";
+                        log = log + "removeFirst()\n";
                         removeSolNum = testArray.removeFirst();
-                        removeeStuNum = solArray.removeFirst();
+                        removeStuNum = solArray.removeFirst();
                         break;
                     case 3:
-                        log = log + "removeLast(" + num + ")\n";
+                        log = log + "removeLast()\n";
                         removeSolNum = testArray.removeLast();
-                        removeeStuNum = solArray.removeLast();
+                        removeStuNum = solArray.removeLast();
                         break;
                     default:
                 }
-                assertEquals(log, removeSolNum, removeeStuNum);
+                assertEquals(log, removeSolNum, removeStuNum);
             }
         }
     }
+
+
 }
