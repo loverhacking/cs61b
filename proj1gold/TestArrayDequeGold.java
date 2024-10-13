@@ -11,8 +11,8 @@ public class TestArrayDequeGold {
 
         String log = "";
 
-        for (int i = 0; i < totalTestNum; i++) {
-            if (!solArray.isEmpty()) {
+        for (int i = 0; i < 1000; i++) {
+            if (solArray.isEmpty()) {
 
                 int flag = StdRandom.uniform(2);
                 int num = StdRandom.uniform(totalTestNum);
@@ -61,6 +61,4 @@ public class TestArrayDequeGold {
             }
         }
     }
-
-
 }
