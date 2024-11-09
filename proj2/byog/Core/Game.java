@@ -182,14 +182,16 @@ public class Game {
 
     private static void createMaze(TETile[][] world, long seed) {
 
-        if (WIDTH < 2 || HEIGHT < 2) {
+        if (WIDTH <= 3 || HEIGHT <= 3) {
             return;
         }
         Game.random = new Random(seed);
-        int x1 = 1 + Game.random.nextInt(WIDTH - 2);
-        int x2 = x1 + 1 + Game.random.nextInt(WIDTH - 2 - x1);
-        int y1 = 1 + Game.random.nextInt(HEIGHT - 2);
-        int y2 = y1 + 1 + Game.random.nextInt(HEIGHT - 2 - y1);
+        int x1 = 1 + Game.random.nextInt(WIDTH - 3);
+        System.out.println(x1);
+        int x2 = x1 + Game.random.nextInt(WIDTH - 2 - x1);
+        int y1 = 1 + Game.random.nextInt(HEIGHT - 3);
+        System.out.println(y1);
+        int y2 = y1 + Game.random.nextInt(HEIGHT - 2 - y1);
 
         createWallBoundary(world, x1, x2, y1, y2);
 
@@ -268,5 +270,7 @@ public class Game {
         createMazeInOneArea(world, x1, y1, x2, y2, x, y);
 
     }
+
+
 
 }
