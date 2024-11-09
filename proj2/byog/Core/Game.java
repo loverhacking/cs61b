@@ -10,8 +10,8 @@ import java.util.Stack;
 public class Game {
     TERenderer ter = new TERenderer();
     /* Feel free to change the width and height. */
-    public static final int WIDTH = 1;
-    public static final int HEIGHT = 1;
+    public static final int WIDTH = 80;
+    public static final int HEIGHT = 30;
 
     private static Random random;
     Stack<TETile[][]> stack = new Stack<>();
@@ -267,11 +267,6 @@ public class Game {
         // create maze in one area
         createMazeInOneArea(world, x1, y1, x2, y2, x, y);
 
-    }
-
-    public static void main(String[] args) {
-        Game game = new Game();
-        game.playWithInputString("N234S");
     }
 
 }
