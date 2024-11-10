@@ -107,7 +107,8 @@ public class Game {
         }
     }
 
-    private static void drawWall(TETile[][] world, Position p1, Position p2, int x, int y) {
+    private static void drawWall(TETile[][] world,
+                                 Position p1, Position p2, int x, int y) {
 
         int x1 = p1.getX();
         int y1 = p1.getY();
