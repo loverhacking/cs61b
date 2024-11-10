@@ -232,7 +232,8 @@ public class Game {
         }
     }
 
-    private static void createMazeInThreeAreas(TETile[][] world, Position p1, Position p2, int x, int y) {
+    private static void createMazeInThreeAreas(TETile[][] world,
+                                               Position p1, Position p2, int x, int y) {
 
         int x1 = p1.getX();
         int y1 = p1.getY();
@@ -282,8 +283,10 @@ public class Game {
 
     /**
      * based on recursive partition algorithm
-     * first suppose the maze is all floors, drawing four walls inside to divide the maze into four new areas.
-     * then random choose three walls to get through, then the original four unconnected areas are connected.
+     * first suppose the maze is all floors,
+     * drawing four walls inside to divide the maze into four new areas.
+     * then random choose three walls to get through,
+     * so the original four unconnected areas are connected.
      * And so on, continue to set up walls in the four new areas to divide the areas
      * until the division can no longer be completed.
      */
