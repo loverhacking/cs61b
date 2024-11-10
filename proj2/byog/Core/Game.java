@@ -13,10 +13,11 @@ public class Game {
     public static final int WIDTH = 80;
     public static final int HEIGHT = 30;
 
+    /* random number generator */
     private static Random random;
+
+    /* store generated world */
     Stack<TETile[][]> stack = new Stack<>();
-
-
 
     /**
      * Method used for playing a fresh game. The game should start from the main menu.
@@ -60,6 +61,7 @@ public class Game {
         return world;
     }
 
+    /* load game if a previous one saved, or game end */
     private TETile[][] loadGame() {
         if (stack.empty()) {
             System.exit(0);
@@ -67,10 +69,9 @@ public class Game {
         } else {
             return stack.pop();
         }
-
-
     }
 
+    /* start a new game */
     private TETile[][] newGame(String input) {
 
         // initialize tiles
@@ -80,12 +81,12 @@ public class Game {
 
         initialMaze(world);
         createMaze(world, seed);
-        savegame(world);
+        saveGame(world);
         return world;
 
     }
 
-    private void savegame(TETile[][] world) {
+    private void saveGame(TETile[][] world) {
         stack.push(world);
     }
 
@@ -93,7 +94,25 @@ public class Game {
         return Long.valueOf(seedString.toString());
     }
 
-    private static void drawWall(TETile[][] world, int x1, int x2, int y1, int y2, int x, int y) {
+    private static int convertBooleanToInt(boolean bool) {
+        return bool ? 1 : 0;
+    }
+
+
+    private static void initialMaze(TETile[][] world) {
+        for (int x = 0; x < WIDTH; x += 1) {
+            for (int y = 0; y < HEIGHT; y += 1) {
+                world[x][y] = Tileset.NOTHING;
+            }
+        }
+    }
+
+    private static void drawWall(TETile[][] world, Position p1, Position p2, int x, int y) {
+
+        int x1 = p1.getX();
+        int y1 = p1.getY();
+        int x2 = p2.getX();
+        int y2 = p2.getY();
 
         for (int i = x1; i <= x2; i++) {
             world[i][y] = Tileset.WALL;
@@ -102,9 +121,7 @@ public class Game {
             world[x][i] = Tileset.WALL;
         }
     }
-    private static int convertBooleanToInt(boolean bool) {
-        return bool ? 1 : 0;
-    }
+
     private static boolean isConnectTwoArea(TETile[][] world, int rx, int ry) {
 
         int numIsWall = convertBooleanToInt(world[rx - 1][ry].equals(Tileset.WALL))
@@ -115,17 +132,111 @@ public class Game {
         return numIsWall > 2;
     }
 
-    private static void initialMaze(TETile[][] world) {
-        for (int x = 0; x < WIDTH; x += 1) {
-            for (int y = 0; y < HEIGHT; y += 1) {
-                world[x][y] = Tileset.NOTHING;
+    private static void createWallBoundary(TETile[][] world, Position p1, Position p2) {
+
+        int x1 = p1.getX();
+        int y1 = p1.getY();
+        int x2 = p2.getX();
+        int y2 = p2.getY();
+
+        for (int x = x1 - 1; x <= x2 + 1; x += 1) {
+            world[x][y1 - 1] = Tileset.WALL;
+            world[x][y2 + 1] = Tileset.WALL;
+        }
+
+        for (int y = y1 - 1; y <= y2 + 1; y += 1) {
+            world[x1 - 1][y] = Tileset.WALL;
+            world[x2 + 1][y] = Tileset.WALL;
+        }
+    }
+
+    private static void createMaze(TETile[][] world, long seed) {
+
+        if (WIDTH <= 3 || HEIGHT <= 3) {
+            return;
+        }
+        Game.random = new Random(seed);
+
+        /**
+         * choose maze size
+         * width: x1 ~ x2
+         * height: y1 ~ y2
+         */
+        int x1 = 1 + Game.random.nextInt(WIDTH - 3);
+        int x2 = x1 + Game.random.nextInt(WIDTH - 2 - x1);
+        int y1 = 1 + Game.random.nextInt(HEIGHT - 3);
+        int y2 = y1 + Game.random.nextInt(HEIGHT - 2 - y1);
+
+        Position p1 = new Position(x1, y1);
+        Position p2 = new Position(x2, y2);
+
+        createWallBoundary(world, p1, p2);
+        createMaze(world, p1, p2);
+        fillupMaze(world, p1, p2);
+        createLockedDoor(world, p1, p2);
+    }
+
+    private static void createLockedDoor(TETile[][] world, Position p1, Position p2) {
+
+        int x1 = p1.getX();
+        int y1 = p1.getY();
+        int x2 = p2.getX();
+        int y2 = p2.getY();
+
+        int flag = Game.random.nextInt(4);
+        int num;
+        switch (flag) {
+            case 0:
+                do {
+                    num = x1 + Game.random.nextInt(x2 - x1 + 1);
+                } while (world[num][y1].equals(Tileset.WALL));
+                world[num][y1 - 1] = Tileset.LOCKED_DOOR;
+                break;
+            case 1:
+                do {
+                    num = x1 + Game.random.nextInt(x2 - x1 + 1);
+                } while (world[num][y2].equals(Tileset.WALL));
+                world[num][y2 + 1] = Tileset.LOCKED_DOOR;
+                break;
+            case 2:
+                do {
+                    num = y1 + Game.random.nextInt(y2 - y1 + 1);
+                } while (world[x1][num].equals(Tileset.WALL));
+                world[x1 - 1][num] = Tileset.LOCKED_DOOR;
+                break;
+            case 3:
+                do {
+                    num = y1 + Game.random.nextInt(y2 - y1 + 1);
+                } while (world[x2][num].equals(Tileset.WALL));
+                world[x2 + 1][num] = Tileset.LOCKED_DOOR;
+                break;
+            default:
+        }
+
+    }
+
+    private static void fillupMaze(TETile[][] world, Position p1, Position p2) {
+
+        int x1 = p1.getX();
+        int y1 = p1.getY();
+        int x2 = p2.getX();
+        int y2 = p2.getY();
+
+        for (int x = x1; x <= x2; x += 1) {
+            for (int y = y1; y <= y2; y += 1) {
+                if (!world[x][y].equals(Tileset.WALL)) {
+                    world[x][y] = Tileset.FLOOR;
+                }
             }
         }
     }
 
+    private static void createMazeInThreeAreas(TETile[][] world, Position p1, Position p2, int x, int y) {
 
-    private static void createMazeInOneArea(TETile[][] world, int x1, int y1,
-                                            int x2, int y2, int x, int y) {
+        int x1 = p1.getX();
+        int y1 = p1.getY();
+        int x2 = p2.getX();
+        int y2 = p2.getY();
 
         // randow pick 3 walls
         int[] r = {0, 0, 0, 0};
@@ -168,83 +279,19 @@ public class Game {
         }
     }
 
-    private static void createWallBoundary(TETile[][] world, int x1, int x2, int y1, int y2) {
-        for (int x = x1 - 1; x <= x2 + 1; x += 1) {
-            world[x][y1 - 1] = Tileset.WALL;
-            world[x][y2 + 1] = Tileset.WALL;
-        }
-
-        for (int y = y1 - 1; y <= y2 + 1; y += 1) {
-            world[x1 - 1][y] = Tileset.WALL;
-            world[x2 + 1][y] = Tileset.WALL;
-        }
-    }
-
-    private static void createMaze(TETile[][] world, long seed) {
-
-        if (WIDTH <= 3 || HEIGHT <= 3) {
-            return;
-        }
-        Game.random = new Random(seed);
-        int x1 = 1 + Game.random.nextInt(WIDTH - 3);
-        int x2 = x1 + Game.random.nextInt(WIDTH - 2 - x1);
-        int y1 = 1 + Game.random.nextInt(HEIGHT - 3);
-        int y2 = y1 + Game.random.nextInt(HEIGHT - 2 - y1);
-
-        createWallBoundary(world, x1, x2, y1, y2);
-
-        createMaze(world, x1, y1, x2, y2);
-        fillupMaze(world, x1, y1, x2, y2);
-        createLockedDoor(world, x1, y1, x2, y2);
-    }
-
-    private static void createLockedDoor(TETile[][] world, int x1, int y1, int x2, int y2) {
-        int flag = Game.random.nextInt(4);
-        int num;
-        switch (flag) {
-            case 0:
-                do {
-                    num = x1 + Game.random.nextInt(x2 - x1 + 1);
-                } while (world[num][y1].equals(Tileset.WALL));
-                world[num][y1 - 1] = Tileset.LOCKED_DOOR;
-                break;
-            case 1:
-                do {
-                    num = x1 + Game.random.nextInt(x2 - x1 + 1);
-                } while (world[num][y2].equals(Tileset.WALL));
-                world[num][y2 + 1] = Tileset.LOCKED_DOOR;
-                break;
-            case 2:
-                do {
-                    num = y1 + Game.random.nextInt(y2 - y1 + 1);
-                } while (world[x1][num].equals(Tileset.WALL));
-                world[x1 - 1][num] = Tileset.LOCKED_DOOR;
-                break;
-            case 3:
-                do {
-                    num = y1 + Game.random.nextInt(y2 - y1 + 1);
-                } while (world[x2][num].equals(Tileset.WALL));
-                world[x2 + 1][num] = Tileset.LOCKED_DOOR;
-                break;
-            default:
-        }
-
-    }
-
-    private static void fillupMaze(TETile[][] world, int x1, int y1, int x2, int y2) {
-        for (int x = x1; x <= x2; x += 1) {
-            for (int y = y1; y <= y2; y += 1) {
-                if (!world[x][y].equals(Tileset.WALL)) {
-                    world[x][y] = Tileset.FLOOR;
-                }
-            }
-        }
-    }
-
     /**
      * based on recursive partition algorithm
+     * first suppose the maze is all floors, drawing four walls inside to divide the maze into four new areas.
+     * then random choose three walls to get through, then the original four unconnected areas are connected.
+     * And so on, continue to set up walls in the four new areas to divide the areas
+     * until the division can no longer be completed.
      */
-    public static void createMaze(TETile[][] world, int x1, int y1, int x2, int y2) {
+    private static void createMaze(TETile[][] world, Position p1, Position p2) {
+
+        int x1 = p1.getX();
+        int y1 = p1.getY();
+        int x2 = p2.getX();
+        int y2 = p2.getY();
 
         // base case
         if (x2 - x1 < 2 || y2 - y1 < 2) {
@@ -256,16 +303,16 @@ public class Game {
         int y = y1 + 1 + Game.random.nextInt(y2 - y1 - 1);
 
         // draw wall
-        drawWall(world, x1, x2, y1, y2, x, y);
+        drawWall(world, new Position(x1, y1), new Position(x2, y2), x, y);
 
         // recursive partition to continue divide maze
-        createMaze(world, x1, y1, x - 1, y - 1);
-        createMaze(world, x + 1, y + 1, x2, y2);
-        createMaze(world, x + 1, y1, x2, y - 1);
-        createMaze(world, x1, y + 1, x - 1, y2);
+        createMaze(world, new Position(x1, y1), new Position(x - 1, y - 1));
+        createMaze(world, new Position(x + 1, y + 1), new Position(x2, y2));
+        createMaze(world, new Position(x + 1, y1), new Position(x2, y - 1));
+        createMaze(world, new Position(x1, y + 1), new Position(x - 1, y2));
 
-        // create maze in one area
-        createMazeInOneArea(world, x1, y1, x2, y2, x, y);
+        // create maze in three areas
+        createMazeInThreeAreas(world, new Position(x1, y1), new Position(x2, y2), x, y);
 
     }
 
