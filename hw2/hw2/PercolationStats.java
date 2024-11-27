@@ -8,7 +8,7 @@ public class PercolationStats {
     private int T;
     private double[] percentiles;
     private PercolationFactory pf;
-    private Percolation p;
+
     // perform T independent experiments on an N-by-N grid
     public PercolationStats(int N, int T, PercolationFactory pf) {
         if (N <= 0 || T <= 0) {
@@ -23,26 +23,24 @@ public class PercolationStats {
 
     private void monteCarloSimulation() {
         for (int i = 0; i < T; i++) {
-            this.p = pf.make(N);
+            Percolation p = pf.make(N);
 
-            while (p.percolates()) {
-                opensite();
+            while (!p.percolates()) {
+                opensite(p);
             }
 
-            percentiles[i] = (double) (p.numberOfOpenSites() / N);
+            percentiles[i] = (double) p.numberOfOpenSites() / (N * N);
         }
 
     }
 
-    private void opensite() {
+    private void opensite(Percolation p) {
         int row = StdRandom.uniform(N);
         int col = StdRandom.uniform(N);
 
-        while (!p.isOpen(row, col)) {
-            row = StdRandom.uniform(N);
-            col = StdRandom.uniform(N);
-        }
+
         p.open(row, col);
+
     }
 
     // sample mean of percolation threshold

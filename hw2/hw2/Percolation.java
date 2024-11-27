@@ -2,9 +2,10 @@ package hw2;
 
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
+
 public class Percolation {
 
-    private final WeightedQuickUnionUF ufWithVirtualBottomSite;
+    private WeightedQuickUnionUF ufWithVirtualBottomSite;
     private final WeightedQuickUnionUF ufWithoutVirtualBottomSite;
 
     private int[][] site;
@@ -22,45 +23,55 @@ public class Percolation {
         this.N = N;
     }
 
-    private static int xyTo1D(int r, int c) {
-        return (r + 1) * (c + 1) - 1;
+    private int xyTo1D(int r, int c) {
+        return r * N + c;
     }
 
     private void connectSite(int row, int col) {
 
         if (row == 0) {
-            ufWithVirtualBottomSite.union(xyTo1D(row, col), N * N + 1);
-            ufWithoutVirtualBottomSite.union(xyTo1D(row, col), N * N + 1);
-            return;
+            ufWithVirtualBottomSite.union(xyTo1D(row, col), N * N);
+            ufWithoutVirtualBottomSite.union(xyTo1D(row, col), N * N);
+
+
         }
 
         if (row == N - 1) {
-            ufWithVirtualBottomSite.union(xyTo1D(row, col), N * N + 2);
-            return;
+            ufWithVirtualBottomSite.union(xyTo1D(row, col), N * N + 1);
+
+
         }
 
-        if (row - 1 >= 0 && site[row - 1][col] == 1) {
+        if (row - 1 >= 0 && isOpen(row - 1, col)) {
             ufWithVirtualBottomSite.union(xyTo1D(row, col), xyTo1D(row - 1, col));
             ufWithoutVirtualBottomSite.union(xyTo1D(row, col), xyTo1D(row - 1, col));
-            return;
+
+
+
         }
 
-        if (row + 1 <= N - 1 && site[row + 1][col] == 1) {
+        if (row + 1 <= N - 1 && isOpen(row + 1, col)) {
             ufWithVirtualBottomSite.union(xyTo1D(row, col), xyTo1D(row + 1, col));
             ufWithoutVirtualBottomSite.union(xyTo1D(row, col), xyTo1D(row + 1, col));
-            return;
+
+
+
         }
 
-        if (col - 1 >= 0 && site[row][col - 1] == 1) {
+        if (col - 1 >= 0 && isOpen(row, col - 1)) {
             ufWithVirtualBottomSite.union(xyTo1D(row, col), xyTo1D(row, col - 1));
             ufWithoutVirtualBottomSite.union(xyTo1D(row, col), xyTo1D(row, col + 1));
-            return;
+
+
+
         }
 
-        if (col + 1 <= N - 1 && site[row][col + 1] == 1) {
+        if (col + 1 <= N - 1 && isOpen(row, col + 1)) {
             ufWithVirtualBottomSite.union(xyTo1D(row, col), xyTo1D(row, col + 1));
             ufWithoutVirtualBottomSite.union(xyTo1D(row, col), xyTo1D(row, col + 1));
-            return;
+
+
+
         }
 
     }
@@ -89,7 +100,7 @@ public class Percolation {
             throw new IndexOutOfBoundsException();
         }
 
-        return site[row][col] == 1;
+        return site[row][col] != 0;
     }
 
     // is the site (row, col) full?
@@ -98,7 +109,7 @@ public class Percolation {
             throw new IndexOutOfBoundsException();
         }
 
-        return ufWithoutVirtualBottomSite.connected(xyTo1D(row, col), N * N + 1);
+        return ufWithoutVirtualBottomSite.connected(xyTo1D(row, col), N * N);
     }
 
     // number of open sites
@@ -108,14 +119,13 @@ public class Percolation {
 
     // does the system percolate?
     public boolean percolates() {
-        return ufWithVirtualBottomSite.connected(N * N + 1, N * N + 2);
+        return ufWithVirtualBottomSite.connected(N * N, N * N + 1);
     }
 
     // use for unit testing (not required)
-    //public static void main(String[] args)
+    // public static void main(String[] args)
 
 
 
-
-
+    
 }
