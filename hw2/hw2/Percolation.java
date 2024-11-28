@@ -104,7 +104,7 @@ public class Percolation {
             throw new IndexOutOfBoundsException();
         }
 
-        return site[row][col] == 1;
+        return site[row][col] == 1 || site[row][col] == 2;
     }
 
     // is the site (row, col) full?
@@ -128,6 +128,9 @@ public class Percolation {
 
     // use for unit testing (not required)
     public static void main(String[] args) {
+        Percolation p = new Percolation(6);
+        p.open(0, 5);
+        System.out.println(p.isOpen(0, 5));
 
     }
 
