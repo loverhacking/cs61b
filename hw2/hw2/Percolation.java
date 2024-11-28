@@ -42,7 +42,7 @@ public class Percolation {
 
         }
 
-        if (row - 1 >= 0 && isOpen(row - 1, col)) {
+        if (row - 1 >= 0 && !isBlocked(row - 1, col)) {
             ufWithVirtualBottomSite.union(xyTo1D(row, col), xyTo1D(row - 1, col));
             ufWithoutVirtualBottomSite.union(xyTo1D(row, col), xyTo1D(row - 1, col));
 
@@ -50,7 +50,7 @@ public class Percolation {
 
         }
 
-        if (row + 1 <= N - 1 && isOpen(row + 1, col)) {
+        if (row + 1 <= N - 1 && !isBlocked(row + 1, col)) {
             ufWithVirtualBottomSite.union(xyTo1D(row, col), xyTo1D(row + 1, col));
             ufWithoutVirtualBottomSite.union(xyTo1D(row, col), xyTo1D(row + 1, col));
 
@@ -58,15 +58,15 @@ public class Percolation {
 
         }
 
-        if (col - 1 >= 0 && isOpen(row, col - 1)) {
+        if (col - 1 >= 0 && !isBlocked(row, col - 1)) {
             ufWithVirtualBottomSite.union(xyTo1D(row, col), xyTo1D(row, col - 1));
-            ufWithoutVirtualBottomSite.union(xyTo1D(row, col), xyTo1D(row, col + 1));
+            ufWithoutVirtualBottomSite.union(xyTo1D(row, col), xyTo1D(row, col - 1));
 
 
 
         }
 
-        if (col + 1 <= N - 1 && isOpen(row, col + 1)) {
+        if (col + 1 <= N - 1 && !isBlocked(row, col + 1)) {
             ufWithVirtualBottomSite.union(xyTo1D(row, col), xyTo1D(row, col + 1));
             ufWithoutVirtualBottomSite.union(xyTo1D(row, col), xyTo1D(row, col + 1));
 
@@ -94,13 +94,17 @@ public class Percolation {
 
     }
 
+    private boolean isBlocked(int row, int col) {
+        return site[row][col] == 0;
+    }
+
     // is the site (row, col) open?
     public boolean isOpen(int row, int col) {
         if (row < 0 || row > N - 1 || col < 0 || col > N - 1) {
             throw new IndexOutOfBoundsException();
         }
 
-        return site[row][col] != 0;
+        return site[row][col] == 1;
     }
 
     // is the site (row, col) full?
@@ -123,7 +127,9 @@ public class Percolation {
     }
 
     // use for unit testing (not required)
-    // public static void main(String[] args)
+    public static void main(String[] args) {
+
+    }
 
 
 
