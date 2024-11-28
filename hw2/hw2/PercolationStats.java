@@ -38,7 +38,6 @@ public class PercolationStats {
         int row = StdRandom.uniform(N);
         int col = StdRandom.uniform(N);
 
-
         p.open(row, col);
 
     }
