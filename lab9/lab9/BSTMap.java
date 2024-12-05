@@ -166,14 +166,15 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
      */
     @Override
     public V remove(K key) {
-        V value = get(key);
-        if (!this.containsKey(key)) {
-            return null;
-        }
-
-        removeHelper(root, key);
-        size--;
-        return value;
+        throw new UnsupportedOperationException();
+//        V value = get(key);
+//        if (!this.containsKey(key)) {
+//            return null;
+//        }
+//
+//        removeHelper(root, key);
+//        size--;
+//        return value;
     }
 
     /** Removes the key-value entry for the specified key only if it is
@@ -182,23 +183,27 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
      **/
     @Override
     public V remove(K key, V value) {
-
-        if (!this.containsKey(key)) {
-            return null;
-        }
-        V returnValue = get(key);
-        if (!returnValue.equals(value)) {
-            return null;
-        }
-        removeHelper(root, key);
-        size--;
-        return returnValue;
+        throw new UnsupportedOperationException();
     }
+
+//        if (!this.containsKey(key)) {
+//            return null;
+//        }
+//        V returnValue = get(key);
+//        if (!returnValue.equals(value)) {
+//            return null;
+//        }
+//        removeHelper(root, key);
+//        size--;
+//        return returnValue;
+//    }
 
     @Override
     public Iterator<K> iterator() {
         return keySet().iterator();
     }
+
+
 
 
 }
