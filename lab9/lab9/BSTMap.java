@@ -28,7 +28,7 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         }
     }
 
-    private Node root;  /* Root node of the tree. */
+    public Node root;  /* Root node of the tree. */
     private int size; /* The number of key-value pairs in the tree */
 
     /* Creates an empty BSTMap. */
@@ -139,6 +139,9 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         return p;
     }
 
+    /**
+     * Returns a BSTMap rooted in p with (KEY) Node removed.
+     */
     private Node removeHelper(Node p, K key) {
         if (p.key.compareTo(key) < 0) {
             p.right = removeHelper(p.right, key);
@@ -166,15 +169,14 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
      */
     @Override
     public V remove(K key) {
-        throw new UnsupportedOperationException();
-//        V value = get(key);
-//        if (!this.containsKey(key)) {
-//            return null;
-//        }
-//
-//        removeHelper(root, key);
-//        size--;
-//        return value;
+
+        if (!this.containsKey(key)) {
+            return null;
+        }
+        V value = get(key);
+        root = removeHelper(root, key);
+        size--;
+        return value;
     }
 
     /** Removes the key-value entry for the specified key only if it is
@@ -183,27 +185,22 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
      **/
     @Override
     public V remove(K key, V value) {
-        throw new UnsupportedOperationException();
-    }
 
-//        if (!this.containsKey(key)) {
-//            return null;
-//        }
-//        V returnValue = get(key);
-//        if (!returnValue.equals(value)) {
-//            return null;
-//        }
-//        removeHelper(root, key);
-//        size--;
-//        return returnValue;
-//    }
+
+        if (!this.containsKey(key)) {
+            return null;
+        }
+        V returnValue = get(key);
+        if (!returnValue.equals(value)) {
+            return null;
+        }
+        root = removeHelper(root, key);
+        size--;
+        return returnValue;
+    }
 
     @Override
     public Iterator<K> iterator() {
         return keySet().iterator();
     }
-
-
-
-
 }
