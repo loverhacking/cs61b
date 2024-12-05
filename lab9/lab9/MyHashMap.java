@@ -1,13 +1,16 @@
 package lab9;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
+
 
 /**
  *  A hash table-backed Map implementation. Provides amortized constant time
  *  access to elements via get(), remove(), and put() in the best case.
  *
- *  @author Your name here
+ *  @author zjy
  */
 public class MyHashMap<K, V> implements Map61B<K, V> {
 
@@ -23,6 +26,11 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
 
     public MyHashMap() {
         buckets = new ArrayMap[DEFAULT_SIZE];
+        this.clear();
+    }
+
+    public MyHashMap(int initialSize) {
+        buckets = new ArrayMap[initialSize];
         this.clear();
     }
 
@@ -48,24 +56,63 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
         return Math.floorMod(key.hashCode(), numBuckets);
     }
 
+    /**
+     * Computes the hash function of the given key
+     * and given length
+     * use when resize is needed
+     */
+    private int hash(K key, int length) {
+        if (key == null) {
+            return 0;
+        }
+        return Math.floorMod(key.hashCode(), length);
+    }
+
     /* Returns the value to which the specified key is mapped, or null if this
      * map contains no mapping for the key.
      */
     @Override
     public V get(K key) {
-        throw new UnsupportedOperationException();
+
+        return buckets[hash(key)].get(key);
     }
 
     /* Associates the specified value with the specified key in this map. */
     @Override
     public void put(K key, V value) {
-        throw new UnsupportedOperationException();
+
+        ArrayMap<K, V> bucket = buckets[hash(key)];
+        if (bucket.containsKey(key)) {
+            bucket.remove(key, bucket.get(key));
+        } else {
+            size++;
+        }
+        bucket.put(key, value);
+        if (loadFactor() > MAX_LF) {
+            resize();
+        }
+
+
+    }
+
+    private void resize() {
+        ArrayMap<K, V>[] temp = new ArrayMap[buckets.length * 2];
+        for (int i = 0; i < temp.length; i += 1) {
+            temp[i] = new ArrayMap<>();
+        }
+
+        for (ArrayMap<K, V> bucket : buckets) {
+            for (K key : bucket) {
+                temp[hash(key, buckets.length * 2)].put(key, bucket.get(key));
+            }
+        }
+        buckets = temp;
     }
 
     /* Returns the number of key-value mappings in this map. */
     @Override
     public int size() {
-        throw new UnsupportedOperationException();
+        return size;
     }
 
     //////////////// EVERYTHING BELOW THIS LINE IS OPTIONAL ////////////////
@@ -73,7 +120,11 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
     /* Returns a Set view of the keys contained in this map. */
     @Override
     public Set<K> keySet() {
-        throw new UnsupportedOperationException();
+        Set<K> keys = new HashSet<>();
+        for (ArrayMap<K, V> bucket : buckets) {
+            keys.addAll(bucket.keySet());
+        }
+        return keys;
     }
 
     /* Removes the mapping for the specified key from this map if exists.
@@ -81,7 +132,13 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
      * UnsupportedOperationException. */
     @Override
     public V remove(K key) {
-        throw new UnsupportedOperationException();
+        ArrayMap<K, V> bucket = buckets[hash(key)];
+        if (!bucket.containsKey(key)) {
+            return null;
+        }
+        V value = bucket.remove(key);
+        size--;
+        return value;
     }
 
     /* Removes the entry for the specified key only if it is currently mapped to
@@ -89,11 +146,19 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
      * throw an UnsupportedOperationException.*/
     @Override
     public V remove(K key, V value) {
-        throw new UnsupportedOperationException();
+        ArrayMap<K, V> bucket = buckets[hash(key)];
+        if (!bucket.containsKey(key)) {
+            return null;
+        }
+        V returnValue = bucket.remove(key, value);
+        size--;
+        return returnValue;
     }
 
     @Override
     public Iterator<K> iterator() {
-        throw new UnsupportedOperationException();
+        return keySet().iterator();
     }
+
+
 }
