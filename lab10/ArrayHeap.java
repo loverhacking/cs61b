@@ -128,11 +128,7 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
         }
         // Throws an exception if index is invalid. DON'T CHANGE THIS LINE.
         validateSinkSwimArg(index);
-
-        if (index == size) {
-            return;
-        }
-
+        
         if (min(index, leftIndex(index)) == index
                 && min(index, rightIndex(index)) == index) {
             return;
@@ -212,20 +208,24 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
     @Override
     public void changePriority(T item, double priority) {
 
-        int index = 0;
+        int targetIndex = 0;
+        /**
+         * remember a dummy item is added at the front of the ArrayHeap
+         * so the index start at 1 !!!
+         */
         for (int i = 1; i <= size(); i++) {
             if (getNode(i).myItem.equals(item)) {
-                index = i;
+                targetIndex = i;
                 break;
             }
         }
 
-        if (getNode(index) == null) {
+        if (getNode(targetIndex) == null) {
             throw new IllegalArgumentException("no such item in the heap");
         }
-        contents[index].myPriority = priority;
-        swim(index);
-        sink(index);
+        contents[targetIndex].myPriority = priority;
+        swim(targetIndex);
+        sink(targetIndex);
     }
 
 
