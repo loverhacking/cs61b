@@ -12,16 +12,24 @@ public class MazeAStarPath extends MazeExplorer {
     private Maze maze;
     private PriorityQueue<Node> pq;
 
+    /**
+     * create Object Node to make vertex number comparable
+     * in PriorityQueue
+     */
     private class Node {
         private int priority;
-        private int node;
+        private int v;
 
         private Node(int v) {
-            node = v;
-            priority = distTo[v] + h(v);
+            this.v = v;
+            /* A* consider both d[v] and h[v] */
+            this.priority = distTo[v] + h(v);
         }
     }
 
+    /**
+     * write NodeComparator for class Node in PriorityQueue
+     */
     private class NodeComparator implements Comparator<Node> {
         @Override
         public int compare(Node o1, Node o2) {
@@ -38,8 +46,6 @@ public class MazeAStarPath extends MazeExplorer {
         distTo[s] = 0;
         edgeTo[s] = s;
         pq = new PriorityQueue<Node>(new NodeComparator());
-
-
     }
 
     /** Estimate of the distance from v to the target. */
@@ -65,26 +71,22 @@ public class MazeAStarPath extends MazeExplorer {
         announce();
 
         pq.offer(new Node(s));
-        if (s == t) {
-            return;
-        }
 
+        /* like BFS but use PQ instead of Queue to maintain vertexes to be visited */
         while (!pq.isEmpty()) {
             Node v = pq.poll();
-            for (int w: maze.adj(v.node)) {
+            int vertex = v.v;
+            if (vertex == t) {
+                return;
+            }
+            for (int w: maze.adj(vertex)) {
                 if (!marked[w]) {
                     marked[w] = true;
-                    distTo[w] = distTo[v.node] + 1;
-                    edgeTo[w] = v.node;
+                    distTo[w] = distTo[vertex] + 1;
+                    edgeTo[w] = vertex;
                     announce();
-                    if (w == t) {
-                        return;
-                    } else {
-                        pq.offer(new Node(w));
-                    }
+                    pq.offer(new Node(w));
                 }
-
-
             }
         }
     }

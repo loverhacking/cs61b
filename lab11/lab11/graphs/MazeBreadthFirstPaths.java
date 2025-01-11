@@ -14,7 +14,6 @@ public class MazeBreadthFirstPaths extends MazeExplorer {
     */
     private int s;
     private int t;
-    private boolean targetFound = false;
     private Maze maze;
     private Queue<Integer> queue;
 
@@ -43,10 +42,7 @@ public class MazeBreadthFirstPaths extends MazeExplorer {
         while (!queue.isEmpty()) {
             int v = queue.poll();
             if (v == t) {
-                targetFound = true;
-            }
-            if (targetFound) {
-                return;
+               return;
             }
             announce();
             for (int w: maze.adj(v)) {
@@ -56,7 +52,6 @@ public class MazeBreadthFirstPaths extends MazeExplorer {
 
                     edgeTo[w] = v;
                     distTo[w] = distTo[v] + 1;
-
                 }
             }
         }
