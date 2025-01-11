@@ -118,13 +118,21 @@ public class Board implements WorldState {
     }
 
     public boolean equals(Object y) {
+        if (y == this) {
+            return true;
+        }
+        if (y == null || y.getClass() != this.getClass()) {
+            return false;
+        }
+        if (this.N != ((Board) y).N) {
+            return false;
+        }
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
                 if (board[i][j] != ((Board) y).board[i][j]) {
                     return false;
                 }
             }
-
         }
         return true;
     }
@@ -143,6 +151,11 @@ public class Board implements WorldState {
         }
         s.append("\n");
         return s.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 
 
