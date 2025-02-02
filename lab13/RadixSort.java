@@ -1,3 +1,5 @@
+
+
 /**
  * Class for doing Radix sort
  *
@@ -16,8 +18,18 @@ public class RadixSort {
      * @return String[] the sorted array
      */
     public static String[] sort(String[] asciis) {
-        // TODO: Implement LSD Sort
-        return null;
+
+        int N = Integer.MIN_VALUE;
+        for (int i = 0; i < asciis.length; i++) {
+            N = N > asciis[i].length() ? N : asciis[i].length();
+        }
+        String[] copy = new String[asciis.length];
+        System.arraycopy(asciis, 0, copy, 0, asciis.length);
+
+        for (int i = 0; i < N; i++) {
+            sortHelperLSD(copy, 1);
+        }
+        return copy;
     }
 
     /**
@@ -28,8 +40,38 @@ public class RadixSort {
      */
     private static void sortHelperLSD(String[] asciis, int index) {
         // Optional LSD helper method for required LSD radix sort
-        return;
+        int[] counts = new int[256];
+        for (int i = 0; i < asciis.length; i++) {
+            int num = (int) placeHolder(asciis[i], index);
+            counts[num]++;
+        }
+
+        int[] starts = new int[256];
+        int pos = 0;
+        for (int i = 0; i < starts.length; i++) {
+            starts[i] = pos;
+            pos += counts[i];
+        }
+
+        String[] sorted = new String[asciis.length];
+        for (int i = 0; i < asciis.length; i++) {
+            String item = asciis[i];
+            int place = starts[(int) placeHolder(item, index)];
+            sorted[place] = item;
+            starts[(int) placeHolder(item, index)]++;
+        }
+
+        System.arraycopy(sorted, 0, asciis, 0, asciis.length);
     }
+
+    public static char placeHolder(String ascii, int index) {
+        if (index >= ascii.length()) {
+            return (char) 255;
+        }
+        return ascii.charAt(index);
+    }
+
+
 
     /**
      * MSD radix sort helper function that recursively calls itself to achieve the sorted array.
@@ -45,4 +87,6 @@ public class RadixSort {
         // Optional MSD helper method for optional MSD radix sort
         return;
     }
+
+
 }
