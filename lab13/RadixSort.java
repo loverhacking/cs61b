@@ -1,5 +1,4 @@
 
-
 /**
  * Class for doing Radix sort
  *
@@ -26,7 +25,7 @@ public class RadixSort {
         String[] copy = new String[asciis.length];
         System.arraycopy(asciis, 0, copy, 0, asciis.length);
 
-        for (int i = 0; i < maxLength; i++) {
+        for (int i = maxLength - 1; i >= 0; i--) {
             sortHelperLSD(copy, i);
         }
         return copy;
@@ -40,13 +39,14 @@ public class RadixSort {
      */
     private static void sortHelperLSD(String[] asciis, int index) {
         // Optional LSD helper method for required LSD radix sort
-        int[] counts = new int[256];
+        int R = 256;
+        int[] counts = new int[R + 1];
         for (int i = 0; i < asciis.length; i++) {
-            int num = (int) placeHolder(asciis[i], index);
+            int num = placeHolder(asciis[i], index);
             counts[num]++;
         }
 
-        int[] starts = new int[256];
+        int[] starts = new int[R + 1];
         int pos = 0;
         for (int i = 0; i < starts.length; i++) {
             starts[i] = pos;
@@ -56,19 +56,19 @@ public class RadixSort {
         String[] sorted = new String[asciis.length];
         for (int i = 0; i < asciis.length; i++) {
             String item = asciis[i];
-            int place = starts[(int) placeHolder(item, index)];
+            int place = starts[placeHolder(item, index)];
             sorted[place] = item;
-            starts[(int) placeHolder(item, index)]++;
+            starts[placeHolder(item, index)]++;
         }
 
         System.arraycopy(sorted, 0, asciis, 0, asciis.length);
     }
 
-    public static char placeHolder(String ascii, int index) {
+    public static int placeHolder(String ascii, int index) {
         if (index >= ascii.length()) {
-            return (char) 255;
+            return 0;
         }
-        return ascii.charAt(index);
+        return (int) ascii.charAt(index) + 1;
     }
 
 
@@ -87,6 +87,5 @@ public class RadixSort {
         // Optional MSD helper method for optional MSD radix sort
         return;
     }
-
 
 }
