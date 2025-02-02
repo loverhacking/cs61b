@@ -19,15 +19,15 @@ public class RadixSort {
      */
     public static String[] sort(String[] asciis) {
 
-        int N = Integer.MIN_VALUE;
+        int maxLength = Integer.MIN_VALUE;
         for (int i = 0; i < asciis.length; i++) {
-            N = N > asciis[i].length() ? N : asciis[i].length();
+            maxLength = maxLength > asciis[i].length() ? maxLength : asciis[i].length();
         }
         String[] copy = new String[asciis.length];
         System.arraycopy(asciis, 0, copy, 0, asciis.length);
 
-        for (int i = 0; i < N; i++) {
-            sortHelperLSD(copy, 1);
+        for (int i = 0; i < maxLength; i++) {
+            sortHelperLSD(copy, i);
         }
         return copy;
     }

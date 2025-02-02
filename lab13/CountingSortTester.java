@@ -58,3 +58,4 @@ public class CountingSortTester {
         jh61b.junit.TestRunner.runTests(CountingSortTester.class);
     }
 }
+
