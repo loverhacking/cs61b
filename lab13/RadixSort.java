@@ -20,8 +20,8 @@ public class RadixSort {
     public static String[] sort(String[] asciis) {
 
         int maxLength = Integer.MIN_VALUE;
-        for (int i = 0; i < asciis.length; i++) {
-            maxLength = Math.max(maxLength, asciis[i].length());
+        for (String s : asciis) {
+            maxLength = Math.max(maxLength, s.length());
         }
 
         String[] copy = Arrays.copyOf(asciis, asciis.length);
@@ -57,9 +57,10 @@ public class RadixSort {
         String[] sorted = new String[asciis.length];
         for (int i = 0; i < asciis.length; i++) {
             String item = asciis[i];
-            int place = starts[placeHolder(item, index)];
+            int num = placeHolder(item, index);
+            int place = starts[num];
             sorted[place] = item;
-            starts[placeHolder(item, index)]++;
+            starts[num]++;
         }
 
         System.arraycopy(sorted, 0, asciis, 0, asciis.length);
@@ -89,4 +90,5 @@ public class RadixSort {
         return;
     }
 
+  
 }
