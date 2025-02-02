@@ -1,3 +1,4 @@
+import java.util.Arrays;
 
 /**
  * Class for doing Radix sort
@@ -22,8 +23,8 @@ public class RadixSort {
         for (int i = 0; i < asciis.length; i++) {
             maxLength = maxLength > asciis[i].length() ? maxLength : asciis[i].length();
         }
-        String[] copy = new String[asciis.length];
-        System.arraycopy(asciis, 0, copy, 0, asciis.length);
+
+        String[] copy = Arrays.copyOf(asciis, asciis.length);
 
         for (int i = maxLength - 1; i >= 0; i--) {
             sortHelperLSD(copy, i);
