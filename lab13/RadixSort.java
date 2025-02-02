@@ -21,7 +21,7 @@ public class RadixSort {
 
         int maxLength = Integer.MIN_VALUE;
         for (int i = 0; i < asciis.length; i++) {
-            maxLength = maxLength > asciis[i].length() ? maxLength : asciis[i].length();
+            maxLength = Math.max(maxLength, asciis[i].length());
         }
 
         String[] copy = Arrays.copyOf(asciis, asciis.length);
@@ -42,8 +42,8 @@ public class RadixSort {
         // Optional LSD helper method for required LSD radix sort
         int R = 256;
         int[] counts = new int[R + 1];
-        for (int i = 0; i < asciis.length; i++) {
-            int num = placeHolder(asciis[i], index);
+        for (String s : asciis) {
+            int num = placeHolder(s, index);
             counts[num]++;
         }
 
