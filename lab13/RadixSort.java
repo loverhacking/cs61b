@@ -1,6 +1,7 @@
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.TreeMap;
 
 /**
  * Class for doing Radix sort
@@ -69,7 +70,7 @@ public class RadixSort {
 //            asciis[i] = sorted[i];
 //        }
 
-        HashMap<Integer, LinkedList<String>> map = new HashMap<>();
+        TreeMap<Integer, LinkedList<String>> map = new TreeMap<>();
         for (String ascii : asciis) {
             int num = placeHolder(ascii, index);
             if (!map.containsKey(num)) {
@@ -78,17 +79,21 @@ public class RadixSort {
             map.get(num).add(ascii);
         }
 
+
+
         int count = 0;
 
         for (int i = 0; i <= R; i++) {
             if (map.containsKey(i)) {
                 LinkedList<String> list = map.get(i);
-                for (int j = 0; j < list.size(); j++) {
-                    asciis[count] = list.removeLast();
+                while (!list.isEmpty()){
+                    asciis[count] = list.removeFirst();
                     count++;
                 }
             }
         }
+
+
 
     }
 
@@ -117,10 +122,13 @@ public class RadixSort {
     }
 
     public static void main(String[] args) {
-        String[] s = {"2", "100"};
-        System.out.println(Arrays.toString(s));
-        System.out.println(Arrays.toString(sort(s)));
-        System.out.println(Arrays.toString(s));
+        String[] strings = new String[]{"jeg", "jobber", "med", "dette", "i", "100", "arhundrer"};
+        // String[] strings = new String[]{"jeg", "liker", "luken", "mat"};
+        strings = sort(strings);
+        for (String string : strings) {
+            System.out.println(string);
+        }
+        //[100, arhundrer, dette, i, jeg, jobber, med]
     }
 
   
