@@ -63,7 +63,9 @@ public class RadixSort {
             starts[num]++;
         }
 
-        System.arraycopy(sorted, 0, asciis, 0, asciis.length);
+        for (int i = 0; i < asciis.length; i++) {
+            asciis[i] = sorted[i];
+        }
     }
 
     public static int placeHolder(String ascii, int index) {
