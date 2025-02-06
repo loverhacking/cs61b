@@ -1,4 +1,6 @@
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
 
 /**
  * Class for doing Radix sort
@@ -41,31 +43,53 @@ public class RadixSort {
     private static void sortHelperLSD(String[] asciis, int index) {
         // Optional LSD helper method for required LSD radix sort
         int R = 256;
-        int[] counts = new int[R + 1];
-        for (String s : asciis) {
-            int num = placeHolder(s, index);
-            counts[num]++;
+//        int[] counts = new int[R + 1];
+//        for (String s : asciis) {
+//            int num = placeHolder(s, index);
+//            counts[num]++;
+//        }
+
+//        int[] starts = new int[R + 1];
+//        int pos = 0;
+//        for (int i = 0; i < starts.length; i++) {
+//            starts[i] = pos;
+//            pos += counts[i];
+//        }
+//
+//        String[] sorted = new String[asciis.length];
+//        for (int i = 0; i < asciis.length; i++) {
+//            String item = asciis[i];
+//            int num = placeHolder(item, index);
+//            int place = starts[num];
+//            sorted[place] = item;
+//            starts[num]++;
+//        }
+//
+//        for (int i = 0; i < asciis.length; i++) {
+//            asciis[i] = sorted[i];
+//        }
+
+        HashMap<Integer, LinkedList<String>> map = new HashMap<>();
+        for (String ascii : asciis) {
+            int num = placeHolder(ascii, index);
+            if (!map.containsKey(num)) {
+                map.put(num, new LinkedList<>());
+            }
+            map.get(num).add(ascii);
         }
 
-        int[] starts = new int[R + 1];
-        int pos = 0;
-        for (int i = 0; i < starts.length; i++) {
-            starts[i] = pos;
-            pos += counts[i];
+        int count = 0;
+
+        for (int i = 0; i <= R; i++) {
+            if (map.containsKey(i)) {
+                LinkedList<String> list = map.get(i);
+                for (int j = 0; j < list.size(); j++) {
+                    asciis[count] = list.removeLast();
+                    count++;
+                }
+            }
         }
 
-        String[] sorted = new String[asciis.length];
-        for (int i = 0; i < asciis.length; i++) {
-            String item = asciis[i];
-            int num = placeHolder(item, index);
-            int place = starts[num];
-            sorted[place] = item;
-            starts[num]++;
-        }
-
-        for (int i = 0; i < asciis.length; i++) {
-            asciis[i] = sorted[i];
-        }
     }
 
     public static int placeHolder(String ascii, int index) {
@@ -90,6 +114,13 @@ public class RadixSort {
     private static void sortHelperMSD(String[] asciis, int start, int end, int index) {
         // Optional MSD helper method for optional MSD radix sort
         return;
+    }
+
+    public static void main(String[] args) {
+        String[] s = {"2", "100"};
+        System.out.println(Arrays.toString(s));
+        System.out.println(Arrays.toString(sort(s)));
+        System.out.println(Arrays.toString(s));
     }
 
   
