@@ -70,27 +70,61 @@ public class RadixSort {
 //            asciis[i] = sorted[i];
 //        }
 
-        TreeMap<Integer, LinkedList<String>> map = new TreeMap<>();
-        for (String ascii : asciis) {
-            int num = placeHolder(ascii, index);
-            if (!map.containsKey(num)) {
-                map.put(num, new LinkedList<>());
+//        TreeMap<Integer, LinkedList<String>> map = new TreeMap<>();
+//        for (String ascii : asciis) {
+//            int num = placeHolder(ascii, index);
+//            if (!map.containsKey(num)) {
+//                map.put(num, new LinkedList<>());
+//            }
+//            map.get(num).add(ascii);
+//        }
+//
+//
+//
+//        int count = 0;
+//
+//        for (int i = 0; i <= R; i++) {
+//            if (map.containsKey(i)) {
+//                LinkedList<String> list = map.get(i);
+//                while (!list.isEmpty()){
+//                    asciis[count] = list.removeFirst();
+//                    count++;
+//                }
+//            }
+//        }
+
+        int[] count = new int[256];
+        int[] starts = new int[256];
+
+        int[] lettersAtIndex = new int[asciis.length];
+
+        for (int i = 0; i < asciis.length; i++) {
+            int letterAscii;
+            try {
+                // System.out.println(asciis[i].charAt(index));
+                letterAscii = (int) asciis[i].charAt(index);
+            } catch (StringIndexOutOfBoundsException e) {
+                letterAscii = 0;
             }
-            map.get(num).add(ascii);
+
+            lettersAtIndex[i] = letterAscii;
+            count[letterAscii]++;
         }
 
+        for (int i = 0; i < starts.length - 1; i++) {
+            starts[i + 1] = starts[i] + count[i];
+        }
 
+        String[] sortedAsciis = new String[asciis.length];
+        for (int i = 0; i < asciis.length; i++) {
+            int item = lettersAtIndex[i];
+            int place = starts[item];
+            sortedAsciis[place] = asciis[i];
+            starts[item]++;
+        }
 
-        int count = 0;
-
-        for (int i = 0; i <= R; i++) {
-            if (map.containsKey(i)) {
-                LinkedList<String> list = map.get(i);
-                while (!list.isEmpty()){
-                    asciis[count] = list.removeFirst();
-                    count++;
-                }
-            }
+        for (int i = 0; i < sortedAsciis.length; i++) {
+            asciis[i] = sortedAsciis[i];
         }
 
 
