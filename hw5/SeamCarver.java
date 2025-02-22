@@ -1,7 +1,7 @@
 import edu.princeton.cs.algs4.Picture;
 
 import java.awt.*;
-import java.util.Arrays;
+
 
 import static java.lang.Math.abs;
 import static java.lang.Math.min;
@@ -27,6 +27,8 @@ public class SeamCarver {
 
     }
 
+
+
     // current picture
     public Picture picture() {
         return new Picture(image);
@@ -44,10 +46,10 @@ public class SeamCarver {
     // energy of pixel at column x and row y
     public double energy(int x, int y) {
 
-        int width = image.width();
-        int height = image.height();
+        int thisWidth = image.width();
+        int thisHeight = image.height();
 
-        if (x < 0 || x > width - 1 || y < 0 || y > height - 1) {
+        if (x < 0 || x > thisWidth - 1 || y < 0 || y > thisHeight - 1) {
             throw new IndexOutOfBoundsException();
         }
 
@@ -57,15 +59,15 @@ public class SeamCarver {
         int belowY = y + 1;
 
         if (x == 0) {
-            leftX = width - 1;
+            leftX = thisWidth - 1;
         }
-        if (x == width - 1) {
+        if (x == thisWidth - 1) {
             rightX = 0;
         }
         if (y == 0) {
-            upY = height - 1;
+            upY = thisHeight - 1;
         }
-        if (y == height - 1) {
+        if (y == thisHeight - 1) {
             belowY = 0;
         }
 
@@ -82,42 +84,42 @@ public class SeamCarver {
     // sequence of indices for vertical seam
     public int[] findVerticalSeam() {
 
-        int width = image.width();
-        int height = image.height();
+        int thisWidth = image.width();
+        int thisHeight = image.height();
 
 
-        energyPixel = new double[height][width];
+        energyPixel = new double[thisHeight][thisWidth];
         // energy cost of pixel at location (i, j)
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
+        for (int i = 0; i < thisHeight; i++) {
+            for (int j = 0; j < thisWidth; j++) {
                 energyPixel[i][j] = energy(j, i);
             }
         }
 
         // cost of minimum cost path ending at (i, j)
-        M = new double[height][width];
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
+        M = new double[thisHeight][thisWidth];
+        for (int i = 0; i < thisHeight; i++) {
+            for (int j = 0; j < thisWidth; j++) {
                 M[i][j] = energyPixel[i][j] + minEnergyCost(i, j);
             }
         }
 
 
-        int[] verticallSeam = new int[height];
+        int[] verticallSeam = new int[thisHeight];
 
         // find last row of min cost
-        double min = M[height - 1][0];
+        double min = M[thisHeight - 1][0];
         int minIndex = 0;
-        for (int i = 0; i < width; i++) {
-            if (M[height - 1][i] < min) {
-                min = M[height - 1][i];
+        for (int i = 0; i < thisWidth; i++) {
+            if (M[thisHeight - 1][i] < min) {
+                min = M[thisHeight - 1][i];
                 minIndex = i;
             }
         }
-        verticallSeam[height - 1] = minIndex;
+        verticallSeam[thisHeight - 1] = minIndex;
 
         int j = minIndex;
-        for (int i = height - 1; i >= 1; i--) {
+        for (int i = thisHeight - 1; i >= 1; i--) {
             j = minMCose(i, j);
             verticallSeam[i - 1] = j;
         }
@@ -213,15 +215,4 @@ public class SeamCarver {
         return x * x;
     }
 
-
-
-
-    public static void main(String[] args) {
-        Picture p = new Picture("images/6x5.png");
-        SeamCarver sc = new SeamCarver(p);
-
-        int[] seam = sc.findHorizontalSeam();
-        int[] expected = {2, 2, 1, 2, 1, 2};
-        System.out.println(Arrays.toString(seam));
-    }
 }
