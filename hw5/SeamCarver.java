@@ -1,7 +1,5 @@
 import edu.princeton.cs.algs4.Picture;
 
-import java.awt.*;
-
 
 import static java.lang.Math.abs;
 import static java.lang.Math.min;
@@ -120,7 +118,7 @@ public class SeamCarver {
 
         int j = minIndex;
         for (int i = thisHeight - 1; i >= 1; i--) {
-            j = minMCose(i, j);
+            j = minMCost(i, j);
             verticallSeam[i - 1] = j;
         }
         return verticallSeam;
@@ -128,7 +126,7 @@ public class SeamCarver {
 
 
     /** find min M[][] neighbors given i, j */
-    private int minMCose(int i, int j) {
+    private int minMCost(int i, int j) {
         if (j == 0) {
             return M[i - 1][j] > M[i - 1][j + 1] ? j + 1 : j;
         }
@@ -144,7 +142,7 @@ public class SeamCarver {
     /** find min energyPixel[][] neighbors given i, j */
     private double minEnergyCost(int i, int j) {
         if (i == 0) {
-            return energyPixel[i][j];
+            return 0;
         }
         if (j == 0) {
             return min(M[i - 1][j], M[i - 1][j + 1]);
@@ -214,5 +212,6 @@ public class SeamCarver {
     private int square(int x) {
         return x * x;
     }
+
 
 }
