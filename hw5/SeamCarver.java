@@ -1,6 +1,8 @@
 import edu.princeton.cs.algs4.Picture;
 
 
+import java.util.Arrays;
+
 import static java.lang.Math.abs;
 import static java.lang.Math.min;
 
@@ -87,21 +89,15 @@ public class SeamCarver {
 
 
         energyPixel = new double[thisHeight][thisWidth];
+        M = new double[thisHeight][thisWidth];
         // energy cost of pixel at location (i, j)
+        // cost of minimum cost path ending at (i, j)
         for (int i = 0; i < thisHeight; i++) {
             for (int j = 0; j < thisWidth; j++) {
                 energyPixel[i][j] = energy(j, i);
-            }
-        }
-
-        // cost of minimum cost path ending at (i, j)
-        M = new double[thisHeight][thisWidth];
-        for (int i = 0; i < thisHeight; i++) {
-            for (int j = 0; j < thisWidth; j++) {
                 M[i][j] = energyPixel[i][j] + minEnergyCost(i, j);
             }
         }
-
 
         int[] verticallSeam = new int[thisHeight];
 
@@ -178,26 +174,20 @@ public class SeamCarver {
 
     // remove horizontal seam from picture
     public void removeHorizontalSeam(int[] seam) {
-        if (seam.length != width) {
+        if (seam.length != width || checkIllegalSeam(seam)) {
             throw new IllegalArgumentException();
         }
-        if (checkIllegalSeam(seam)) {
-            throw new IllegalArgumentException();
-        }
-        image = SeamRemover.removeHorizontalSeam(image, seam);
 
+        SeamRemover.removeHorizontalSeam(image, seam);
     }
 
     // remove vertical seam from picture
     public void removeVerticalSeam(int[] seam) {
-        if (seam.length != height) {
+        if (seam.length != height || checkIllegalSeam(seam)) {
             throw new IllegalArgumentException();
         }
-        if (!checkIllegalSeam(seam)) {
-            throw new IllegalArgumentException();
-        }
-        image = SeamRemover.removeVerticalSeam(image, seam);
 
+        SeamRemover.removeVerticalSeam(image, seam);
     }
 
     private boolean checkIllegalSeam(int[] seam) {
@@ -211,6 +201,15 @@ public class SeamCarver {
 
     private int square(int x) {
         return x * x;
+    }
+
+    public static void main(String args[]) {
+        Picture p = new Picture("images/10x10.png");
+        SeamCarver sc = new SeamCarver(p);
+
+        int[] seam = sc.findHorizontalSeam();
+        int[] expected = {3, 4, 3, 2, 2};
+        System.out.println(Arrays.toString(seam));
     }
 
 
