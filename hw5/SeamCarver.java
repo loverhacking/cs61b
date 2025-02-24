@@ -8,7 +8,11 @@ public class SeamCarver {
     private Picture image;
     private final int width;
     private final int height;
+
+    /** energy cost of pixel at location (i, j) */
     private double[][] energyPixel;
+
+    /** cost of minimum cost path ending at (i, j) */
     private double[][] M;
 
     /**
@@ -87,26 +91,24 @@ public class SeamCarver {
 
         energyPixel = new double[thisHeight][thisWidth];
         M = new double[thisHeight][thisWidth];
-        // energy cost of pixel at location (i, j)
-        // cost of minimum cost path ending at (i, j)
+        int[] verticallSeam = new int[thisHeight];
+
+        double min = Double.MAX_VALUE;
+        int minIndex = 0;
+
         for (int i = 0; i < thisHeight; i++) {
             for (int j = 0; j < thisWidth; j++) {
                 energyPixel[i][j] = energy(j, i);
                 M[i][j] = energyPixel[i][j] + minEnergyCost(i, j);
+
+                // find min value in last row in M[][]
+                if (i == thisHeight - 1 && M[i][j] < min) {
+                    min = M[i][j];
+                    minIndex = j;
+                }
             }
         }
 
-        int[] verticallSeam = new int[thisHeight];
-
-        // find last row of min cost
-        double min = M[thisHeight - 1][0];
-        int minIndex = 0;
-        for (int i = 0; i < thisWidth; i++) {
-            if (M[thisHeight - 1][i] < min) {
-                min = M[thisHeight - 1][i];
-                minIndex = i;
-            }
-        }
         verticallSeam[thisHeight - 1] = minIndex;
 
         int j = minIndex;
@@ -207,5 +209,5 @@ public class SeamCarver {
     private int square(int x) {
         return x * x;
     }
-    
+
 }
