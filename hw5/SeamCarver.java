@@ -1,8 +1,5 @@
 import edu.princeton.cs.algs4.Picture;
 
-
-import java.util.Arrays;
-
 import static java.lang.Math.abs;
 import static java.lang.Math.min;
 
@@ -123,6 +120,10 @@ public class SeamCarver {
 
     /** find min M[][] neighbors given i, j */
     private int minMCost(int i, int j) {
+        // special case: width == 1: no need to compare
+        if (image.width() == 1) {
+            return j;
+        }
         if (j == 0) {
             return M[i - 1][j] > M[i - 1][j + 1] ? j + 1 : j;
         }
@@ -139,6 +140,10 @@ public class SeamCarver {
     private double minEnergyCost(int i, int j) {
         if (i == 0) {
             return 0;
+        }
+        // special case: width == 1: no need to compare
+        if (image.width() == 1) {
+            return M[i - 1][j];
         }
         if (j == 0) {
             return min(M[i - 1][j], M[i - 1][j + 1]);
@@ -202,15 +207,5 @@ public class SeamCarver {
     private int square(int x) {
         return x * x;
     }
-
-    public static void main(String args[]) {
-        Picture p = new Picture("images/10x10.png");
-        SeamCarver sc = new SeamCarver(p);
-
-        int[] seam = sc.findHorizontalSeam();
-        int[] expected = {3, 4, 3, 2, 2};
-        System.out.println(Arrays.toString(seam));
-    }
-
-
+    
 }
