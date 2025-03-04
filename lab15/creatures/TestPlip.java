@@ -36,10 +36,14 @@ public class TestPlip {
 
     @Test
     public void testReplicate() {
-
+        Plip p = new Plip(2);
+        Plip pBaby = p.replicate();
+        assertNotSame(p, pBaby);
+        assertEquals(1, p.energy(), 0.01);
+        assertEquals(1, pBaby.energy(), 0.01);
     }
 
-    //@Test
+    @Test
     public void testChoose() {
         Plip p = new Plip(1.2);
         HashMap<Direction, Occupant> surrounded = new HashMap<Direction, Occupant>();
@@ -56,6 +60,34 @@ public class TestPlip {
         Action expected = new Action(Action.ActionType.STAY);
 
         assertEquals(expected, actual);
+
+        // Test energy > 1 with one direction empty
+        surrounded.put(Direction.TOP, new Empty());
+        Action actualP = p.chooseAction(surrounded);
+        Action expectedP = new Action(Action.ActionType.REPLICATE, Direction.TOP);
+
+        assertEquals(expectedP, actualP);
+
+        // Test energy <= 1 with top empty and bottom clorus
+        Plip p2 = new Plip(0.8);
+        surrounded.put(Direction.BOTTOM, new Clorus());
+        int countMove = 0;
+        int countStay = 0;
+        int runTimes = 10;
+        for (int i = 0;i < runTimes;i++) {
+            Action actualp2 = p2.chooseAction(surrounded);
+            Action expectedMove = new Action(Action.ActionType.MOVE, Direction.TOP);
+            Action expectedStay = new Action(Action.ActionType.STAY);
+            if (actualp2.equals(expectedMove)) {
+                countMove = countMove + 1;
+            }
+            if (actualp2.equals(expectedStay)) {
+                countStay = countStay + 1;
+            }
+        }
+        assertNotEquals(countMove, 0);
+        assertEquals(countStay, runTimes - countMove);
+
     }
 
     public static void main(String[] args) {
