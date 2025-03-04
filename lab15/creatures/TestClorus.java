@@ -65,7 +65,7 @@ public class TestClorus {
         surrounded.put(Direction.BOTTOM, new Empty());
         surrounded.put(Direction.LEFT, new Impassible());
         surrounded.put(Direction.RIGHT, new Impassible());
-
+        
         Action actual2 = c.chooseAction(surrounded);
         Action expected2 = new Action(Action.ActionType.ATTACK, Direction.TOP);
 
