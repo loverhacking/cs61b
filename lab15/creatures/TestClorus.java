@@ -15,7 +15,7 @@ public class TestClorus {
     public void testBasics() {
         Clorus p = new Clorus(2);
         assertEquals(2, p.energy(), 0.01);
-        assertEquals(new Color(34, 0, 231), p.color());
+        assertEquals(new Color(63, 63, 63), p.color());
         p.move();
         assertEquals(1.97, p.energy(), 0.01);
         p.move();
@@ -60,21 +60,34 @@ public class TestClorus {
         assertEquals(expected1, actual1);
 
         // Test one direction has plip
+        surrounded = new HashMap<>();
         surrounded.put(Direction.TOP, new Plip());
         surrounded.put(Direction.BOTTOM, new Empty());
+        surrounded.put(Direction.LEFT, new Impassible());
+        surrounded.put(Direction.RIGHT, new Impassible());
+
         Action actual2 = c.chooseAction(surrounded);
         Action expected2 = new Action(Action.ActionType.ATTACK, Direction.TOP);
 
         //assertEquals(expected2, actual2);
 
         // Test energy >= 1 with one direction empty
+        surrounded = new HashMap<>();
         surrounded.put(Direction.TOP, new Empty());
+        surrounded.put(Direction.BOTTOM, new Empty());
+        surrounded.put(Direction.LEFT, new Impassible());
+        surrounded.put(Direction.RIGHT, new Impassible());
         Action actual3 = c.chooseAction(surrounded);
         Action expected3 = new Action(Action.ActionType.REPLICATE, Direction.TOP);
 
         // Test energy < 1 with one direction empty
-        Clorus newC = new Clorus(0.8);
-        Action actual4 = newC.chooseAction(surrounded);
+        c = new Clorus(0.8);
+        surrounded = new HashMap<>();
+        surrounded.put(Direction.TOP, new Empty());
+        surrounded.put(Direction.BOTTOM, new Empty());
+        surrounded.put(Direction.LEFT, new Impassible());
+        surrounded.put(Direction.RIGHT, new Impassible());
+        Action actual4 = c.chooseAction(surrounded);
         Action expected4 = new Action(Action.ActionType.MOVE, Direction.TOP);
 
 

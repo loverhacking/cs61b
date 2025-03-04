@@ -62,20 +62,30 @@ public class TestPlip {
         assertEquals(expected, actual);
 
         // Test energy > 1 with one direction empty
+        p = new Plip(1.2);
+        surrounded = new HashMap<>();
         surrounded.put(Direction.TOP, new Empty());
+        surrounded.put(Direction.BOTTOM, new Impassible());
+        surrounded.put(Direction.LEFT, new Impassible());
+        surrounded.put(Direction.RIGHT, new Impassible());
         Action actualP = p.chooseAction(surrounded);
         Action expectedP = new Action(Action.ActionType.REPLICATE, Direction.TOP);
 
         assertEquals(expectedP, actualP);
 
         // Test energy <= 1 with top empty and bottom clorus
-        Plip p2 = new Plip(0.8);
+        p = new Plip(0.8);
+        surrounded = new HashMap<>();
+        surrounded.put(Direction.TOP, new Empty());
         surrounded.put(Direction.BOTTOM, new Clorus());
+        surrounded.put(Direction.LEFT, new Impassible());
+        surrounded.put(Direction.RIGHT, new Impassible());
+
         int countMove = 0;
         int countStay = 0;
         int runTimes = 10;
         for (int i = 0;i < runTimes;i++) {
-            Action actualp2 = p2.chooseAction(surrounded);
+            Action actualp2 = p.chooseAction(surrounded);
             Action expectedMove = new Action(Action.ActionType.MOVE, Direction.TOP);
             Action expectedStay = new Action(Action.ActionType.STAY);
             if (actualp2.equals(expectedMove)) {
