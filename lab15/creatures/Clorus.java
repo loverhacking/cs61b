@@ -1,84 +1,82 @@
 package creatures;
 
-import huglife.*;
-
-import java.awt.*;
+import java.awt.Color;
 import java.util.List;
 import java.util.Map;
 
-public class Clorus extends Creature {
+import huglife.Action;
+import huglife.Creature;
+import huglife.Direction;
+import huglife.HugLifeUtils;
+import huglife.Occupant;
 
+public class Clorus extends Creature {
     /** red color. */
     private int r;
     /** green color. */
     private int g;
     /** blue color. */
     private int b;
+    /** energy to lose when moving. */
+    private static final double moveEnergyLost = 0.03;
+    /** energy to lose when staying. */
+    private static final double stayEnergyLost = 0.01;
 
-    private static final double moveEnergyLose = 0.03;
-
-    private static final double statyEnergyLose = 0.01;
-
-    private static final double repEnergyRetained = 0.5;
-
-    private static final double moveProbability = 0.5;
-
-    /** creates plip with energy equal to E. */
     public Clorus(double e) {
         super("clorus");
-        r = 0;
-        g = 0;
-        b = 0;
-        energy = e;
-    }
-
-    /** creates a plip with energy equal to 1. */
-    public Clorus() {this(1);}
-
-    public Color color() {
         r = 34;
         g = 0;
         b = 231;
+        energy = e;
+    }
+
+    public Clorus() {
+        this(1);
+    }
+
+    @Override
+    public Color color() {
         return color(r, g, b);
     }
 
+    @Override
     public void attack(Creature c) {
-        energy = energy + c.energy();
+        energy += c.energy();
     }
 
+    @Override
     public void move() {
-        energy = energy - moveEnergyLose;
+        energy = energy - moveEnergyLost;
     }
 
-    public void stay() {
-        energy = energy - statyEnergyLose;
-    }
-
+    @Override
     public Clorus replicate() {
-        double babyEnergy = energy * (1 - repEnergyRetained);
-        energy = energy * repEnergyRetained;
-        return new Clorus(babyEnergy);
-
+        energy /= 2;
+        return new Clorus(energy);
     }
 
+    @Override
+    public void stay() {
+        energy = energy - stayEnergyLost;
+    }
+
+    @Override
     public Action chooseAction(Map<Direction, Occupant> neighbors) {
-        java.util.List<Direction> empties = getNeighborsOfType(neighbors, "empty");
+        List<Direction> empties = getNeighborsOfType(neighbors, "empty");
+        List<Direction> plip = getNeighborsOfType(neighbors, "plip");
 
-        List<Direction> plipSet = getNeighborsOfType(neighbors, "plip");
-
-        if (empties.isEmpty()) {
+        if (empties.size() == 0) {
             return new Action(Action.ActionType.STAY);
-        }
-        if (!plipSet.isEmpty()) {
-            Direction moveDir = HugLifeUtils.randomEntry(plipSet);
+        } else if (!plip.isEmpty()) {
+            Direction moveDir = HugLifeUtils.randomEntry(plip);
             return new Action(Action.ActionType.ATTACK, moveDir);
-        }
-        if (energy >= 1) {
+        } else if (energy >= 1) {
             Direction moveDir = HugLifeUtils.randomEntry(empties);
             return new Action(Action.ActionType.REPLICATE, moveDir);
+        } else {
+            Direction moveDir = HugLifeUtils.randomEntry(empties);
+            return new Action(Action.ActionType.MOVE, moveDir);
         }
-        Direction moveDir = HugLifeUtils.randomEntry(empties);
-        return new Action(Action.ActionType.MOVE, moveDir);
     }
 
 }

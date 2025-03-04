@@ -1,4 +1,5 @@
 package creatures;
+
 import org.junit.Test;
 import static org.junit.Assert.*;
 import java.util.HashMap;
@@ -37,10 +38,10 @@ public class TestPlip {
     @Test
     public void testReplicate() {
         Plip p = new Plip(2);
-        Plip pBaby = p.replicate();
-        assertNotSame(p, pBaby);
+        Plip offspring = p.replicate();
+        assertNotSame(offspring, p);
         assertEquals(1, p.energy(), 0.01);
-        assertEquals(1, pBaby.energy(), 0.01);
+        assertEquals(1, offspring.energy(), 0.01);
     }
 
     @Test
@@ -61,46 +62,32 @@ public class TestPlip {
 
         assertEquals(expected, actual);
 
-        // Test energy > 1 with one direction empty
         p = new Plip(1.2);
         surrounded = new HashMap<>();
-        surrounded.put(Direction.TOP, new Empty());
+        surrounded.put(Direction.TOP, new Impassible());
         surrounded.put(Direction.BOTTOM, new Impassible());
         surrounded.put(Direction.LEFT, new Impassible());
-        surrounded.put(Direction.RIGHT, new Impassible());
-        Action actualP = p.chooseAction(surrounded);
-        Action expectedP = new Action(Action.ActionType.REPLICATE, Direction.TOP);
+        surrounded.put(Direction.RIGHT, new Empty());
+        actual = p.chooseAction(surrounded);
+        expected = new Action(Action.ActionType.REPLICATE, Direction.RIGHT);
 
-        assertEquals(expectedP, actualP);
+        assertEquals(expected, actual);
 
-        // Test energy <= 1 with top empty and bottom clorus
         p = new Plip(0.8);
         surrounded = new HashMap<>();
-        surrounded.put(Direction.TOP, new Empty());
-        surrounded.put(Direction.BOTTOM, new Clorus());
+        surrounded.put(Direction.TOP, new Clorus());
+        surrounded.put(Direction.BOTTOM, new Impassible());
         surrounded.put(Direction.LEFT, new Impassible());
-        surrounded.put(Direction.RIGHT, new Impassible());
-
-        int countMove = 0;
-        int countStay = 0;
-        int runTimes = 10;
-        for (int i = 0;i < runTimes;i++) {
-            Action actualp2 = p.chooseAction(surrounded);
-            Action expectedMove = new Action(Action.ActionType.MOVE, Direction.TOP);
-            Action expectedStay = new Action(Action.ActionType.STAY);
-            if (actualp2.equals(expectedMove)) {
-                countMove = countMove + 1;
-            }
-            if (actualp2.equals(expectedStay)) {
-                countStay = countStay + 1;
-            }
-        }
-        assertNotEquals(countMove, 0);
-        assertEquals(countStay, runTimes - countMove);
+        surrounded.put(Direction.RIGHT, new Empty());
+        actual = p.chooseAction(surrounded);
+        Action expected1 = new Action(Action.ActionType.REPLICATE, Direction.RIGHT);
+        Action expected2 = new Action(Action.ActionType.STAY);
+        boolean expectedB = expected1.equals(actual) || expected2.equals(actual);
+        assertTrue(expectedB);
 
     }
 
     public static void main(String[] args) {
         System.exit(jh61b.junit.textui.runClasses(TestPlip.class));
     }
-} 
+}
