@@ -1,82 +1,84 @@
 package creatures;
 
-import java.awt.Color;
+import huglife.*;
+
+import java.awt.*;
 import java.util.List;
 import java.util.Map;
 
-import huglife.Action;
-import huglife.Creature;
-import huglife.Direction;
-import huglife.HugLifeUtils;
-import huglife.Occupant;
-
 public class Clorus extends Creature {
+
     /** red color. */
     private int r;
     /** green color. */
     private int g;
     /** blue color. */
     private int b;
-    /** energy to lose when moving. */
-    private static final double moveEnergyLost = 0.03;
-    /** energy to lose when staying. */
-    private static final double stayEnergyLost = 0.01;
 
+    private static final double moveEnergyLose = 0.03;
+
+    private static final double statyEnergyLose = 0.01;
+
+    private static final double repEnergyRetained = 0.5;
+
+    private static final double moveProbability = 0.5;
+
+    /** creates plip with energy equal to E. */
     public Clorus(double e) {
         super("clorus");
-        r = 34;
+        r = 0;
         g = 0;
-        b = 231;
+        b = 0;
         energy = e;
     }
 
-    public Clorus() {
-        this(1);
-    }
+    /** creates a plip with energy equal to 1. */
+    public Clorus() {this(1);}
 
-    @Override
     public Color color() {
+        r = 34;
+        g = 0;
+        b = 231;
         return color(r, g, b);
     }
 
-    @Override
     public void attack(Creature c) {
-        energy += c.energy();
+        energy = energy + c.energy();
     }
 
-    @Override
     public void move() {
-        energy = energy - moveEnergyLost;
+        energy = energy - moveEnergyLose;
     }
 
-    @Override
-    public Clorus replicate() {
-        energy /= 2;
-        return new Clorus(energy);
-    }
-
-    @Override
     public void stay() {
-        energy = energy - stayEnergyLost;
+        energy = energy - statyEnergyLose;
     }
 
-    @Override
-    public Action chooseAction(Map<Direction, Occupant> neighbors) {
-        List<Direction> empties = getNeighborsOfType(neighbors, "empty");
-        List<Direction> plip = getNeighborsOfType(neighbors, "plip");
+    public Clorus replicate() {
+        double babyEnergy = energy * (1 - repEnergyRetained);
+        energy = energy * repEnergyRetained;
+        return new Clorus(babyEnergy);
 
-        if (empties.size() == 0) {
+    }
+
+    public Action chooseAction(Map<Direction, Occupant> neighbors) {
+        java.util.List<Direction> empties = getNeighborsOfType(neighbors, "empty");
+
+        List<Direction> plipSet = getNeighborsOfType(neighbors, "plip");
+
+        if (empties.isEmpty()) {
             return new Action(Action.ActionType.STAY);
-        } else if (!plip.isEmpty()) {
-            Direction moveDir = HugLifeUtils.randomEntry(plip);
+        }
+        if (!plipSet.isEmpty()) {
+            Direction moveDir = HugLifeUtils.randomEntry(plipSet);
             return new Action(Action.ActionType.ATTACK, moveDir);
-        } else if (energy >= 1) {
+        }
+        if (energy >= 1) {
             Direction moveDir = HugLifeUtils.randomEntry(empties);
             return new Action(Action.ActionType.REPLICATE, moveDir);
-        } else {
-            Direction moveDir = HugLifeUtils.randomEntry(empties);
-            return new Action(Action.ActionType.MOVE, moveDir);
         }
+        Direction moveDir = HugLifeUtils.randomEntry(empties);
+        return new Action(Action.ActionType.MOVE, moveDir);
     }
 
 }

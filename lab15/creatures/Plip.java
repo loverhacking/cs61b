@@ -1,5 +1,4 @@
 package creatures;
-
 import huglife.Creature;
 import huglife.Direction;
 import huglife.Action;
@@ -20,12 +19,14 @@ public class Plip extends Creature {
     private int g;
     /** blue color. */
     private int b;
-    /** energy to lose when moving. */
-    private static final double moveEnergyLost = 0.15;
-    /** energy to gain when staying. */
-    private static final double stayEnergyGained = 0.2;
-    /** max energy limit. */
-    private static final double energyMaxLimit = 2.0;
+
+    private static final double moveEnergyLose = 0.15;
+
+    private static final double statyEnergyGain = 0.2;
+
+    private static final double repEnergyRetained = 0.5;
+
+    private static final double moveProbability = 0.5;
 
     /** creates plip with energy equal to E. */
     public Plip(double e) {
@@ -51,17 +52,10 @@ public class Plip extends Creature {
     public Color color() {
         r = 99;
         b = 76;
-        g = greenByEnergy();
-        return color(r, g, b);
-    }
 
-    /**
-     *  The green value should vary with energy linearly in between these two extremes.
-     *  max value is 255 when energy is max.
-     *  min value is 63 when energy is 0.
-     */
-    private int greenByEnergy() {
-        return (int) ((255 - 63) / (energyMaxLimit) * energy + 63);
+        energySet();
+        g = (int) ((255 - 63) * energy / 2 + 63);
+        return color(r, g, b);
     }
 
     /** Do nothing with C, Plips are pacifists. */
@@ -73,15 +67,15 @@ public class Plip extends Creature {
      *  private static final variable. This is not required for this lab.
      */
     public void move() {
-        energy = energy - moveEnergyLost;
+        energy = energy - moveEnergyLose;
+        energySet();
     }
+
 
     /** Plips gain 0.2 energy when staying due to photosynthesis. */
     public void stay() {
-        energy = energy + stayEnergyGained;
-        if (energy > energyMaxLimit) {
-            energy = energyMaxLimit;
-        }
+        energy = energy + statyEnergyGain;
+        energySet();
     }
 
     /** Plips and their offspring each get 50% of the energy, with none
@@ -89,8 +83,10 @@ public class Plip extends Creature {
      *  Plip.
      */
     public Plip replicate() {
-        energy /= 2;
-        return new Plip(energy);
+        double babyEnergy = energy * (1 - repEnergyRetained);
+        energy = energy * repEnergyRetained;
+        return new Plip(babyEnergy);
+
     }
 
     /** Plips take exactly the following actions based on NEIGHBORS:
@@ -105,18 +101,30 @@ public class Plip extends Creature {
      */
     public Action chooseAction(Map<Direction, Occupant> neighbors) {
         List<Direction> empties = getNeighborsOfType(neighbors, "empty");
-        List<Direction> clorus = getNeighborsOfType(neighbors, "clorus");
 
-        if (empties.size() == 0) {
+        List<Direction> clorusSet = getNeighborsOfType(neighbors, "clorus");
+
+        if (empties.isEmpty()) {
             return new Action(Action.ActionType.STAY);
-        } else if (energy > 1) {
-            Direction moveDir = HugLifeUtils.randomEntry(empties);
+        }
+        if (energy > 1) {
+            Direction moveDir = empties.get(0);
             return new Action(Action.ActionType.REPLICATE, moveDir);
-        } else if (!clorus.isEmpty() && HugLifeUtils.random() >= 0.5) {
-            Direction moveDir = HugLifeUtils.randomEntry(empties);
-            return new Action(Action.ActionType.MOVE, moveDir);
-        } else {
-            return new Action(Action.ActionType.STAY);
+        }
+        if (!clorusSet.isEmpty()) {
+            if (HugLifeUtils.random() < moveProbability) {
+                Direction moveDir = HugLifeUtils.randomEntry(empties);
+                return new Action(Action.ActionType.MOVE, moveDir);
+            }
+        }
+        return new Action(Action.ActionType.STAY);
+    }
+
+
+    private void energySet() {
+        if (energy > 2)
+        {
+            energy = 2;
         }
     }
 
