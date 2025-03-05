@@ -1,11 +1,18 @@
 package creatures;
 
-import huglife.*;
-
-import java.awt.*;
-import java.util.List;
+import huglife.Creature;
+import huglife.Direction;
+import huglife.Action;
+import huglife.Occupant;
+import huglife.HugLifeUtils;
+import java.awt.Color;
 import java.util.Map;
+import java.util.List;
 
+
+/**
+ * Created by Zhenye Na on Jun, 2018
+ */
 public class Clorus extends Creature {
 
     /** red color. */
@@ -15,13 +22,8 @@ public class Clorus extends Creature {
     /** blue color. */
     private int b;
 
-    private static final double moveEnergyLose = 0.03;
 
-    private static final double statyEnergyLose = 0.01;
-
-    private static final double repEnergyRetained = 0.5;
-
-    /** creates plip with energy equal to E. */
+    /** creates clorus with energy equal to E. */
     public Clorus(double e) {
         super("clorus");
         r = 0;
@@ -30,8 +32,11 @@ public class Clorus extends Creature {
         energy = e;
     }
 
-    /** creates a plip with energy equal to 1. */
-    public Clorus() {this(1);}
+    /** creates a clorus with energy equal to 1. */
+    public Clorus() {
+        this(1);
+    }
+
 
     public Color color() {
         r = 34;
@@ -40,43 +45,65 @@ public class Clorus extends Creature {
         return color(r, g, b);
     }
 
+    /** If a Clorus attacks another creature, it should gain that creature’s energy. */
     public void attack(Creature c) {
-        energy = energy + c.energy();
+        energy += c.energy();
     }
 
+    /** Cloruses should lose 0.03 units of energy on a MOVE action. */
     public void move() {
-        energy = energy - moveEnergyLose;
+        energy -= 0.03;
     }
 
+    /** Cloruses should lose 0.01 units of energy on a STAY action. */
     public void stay() {
-        energy = energy - statyEnergyLose;
+        energy -= 0.01;
     }
 
+    /**
+     *  When a Clorus replicates, it keeps 50% of its energy.
+     *  The other 50% goes to its offspring.
+     *  No energy is lost in the replication process.
+     */
     public Clorus replicate() {
-        double babyEnergy = energy * (1 - repEnergyRetained);
-        energy = energy * repEnergyRetained;
-        return new Clorus(babyEnergy);
-
+        this.energy *= 0.5;
+        Clorus replica = new Clorus(this.energy);
+        return replica;
     }
 
+    /**
+     *  Cloruses should obey exactly the following behavioral rules:
+     *
+     *  1. If there are no empty squares, the Clorus will STAY (even if there are Plips nearby they could attack).
+     *  2. Otherwise, if any Plips are seen, the Clorus will ATTACK one of them randomly.
+     *  3. Otherwise, if the Clorus has energy greater than or equal to one, it will REPLICATE to a random empty square.
+     *  4. Otherwise, the Clorus will MOVE to a random empty square.
+     *
+     * */
     public Action chooseAction(Map<Direction, Occupant> neighbors) {
-        java.util.List<Direction> empties = getNeighborsOfType(neighbors, "empty");
+        List<Direction> empties = getNeighborsOfType(neighbors, "empty");
 
-        List<Direction> plipSet = getNeighborsOfType(neighbors, "plip");
-
-        if (empties.isEmpty()) {
+        // If no empty adjacent spaces, STAY.
+        if (empties.size() == 0) {
             return new Action(Action.ActionType.STAY);
+        } else {
+            List<Direction> food = getNeighborsOfType(neighbors, "plip");
+            if (food.size() > 0) {
+                // Otherwise, if any Plips are seen, the Clorus will ATTACK one of them randomly.
+                Direction foodDir = HugLifeUtils.randomEntry(food);
+                return new Action(Action.ActionType.ATTACK, foodDir);
+            } else if (energy >= 1) {
+                // Otherwise, if the Clorus has energy greater than or equal to one, it will REPLICATE to a random empty square.
+                Direction moveDir = HugLifeUtils.randomEntry(empties);
+                return new Action(Action.ActionType.REPLICATE, moveDir);
+            } else {
+                Direction moveDir = HugLifeUtils.randomEntry(empties);
+                return new Action(Action.ActionType.MOVE, moveDir);
+            }
+
         }
-        if (!plipSet.isEmpty()) {
-            Direction moveDir = HugLifeUtils.randomEntry(plipSet);
-            return new Action(Action.ActionType.ATTACK, moveDir);
-        }
-        if (energy >= 1) {
-            Direction moveDir = HugLifeUtils.randomEntry(empties);
-            return new Action(Action.ActionType.REPLICATE, moveDir);
-        }
-        Direction moveDir = HugLifeUtils.randomEntry(empties);
-        return new Action(Action.ActionType.MOVE, moveDir);
+
     }
+
 
 }

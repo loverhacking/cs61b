@@ -20,13 +20,7 @@ public class Plip extends Creature {
     /** blue color. */
     private int b;
 
-    private static final double moveEnergyLose = 0.15;
-
-    private static final double statyEnergyGain = 0.2;
-
-    private static final double repEnergyRetained = 0.5;
-
-    private static final double moveProbability = 0.5;
+    private double MAX_ENERGY = 2.0;
 
     /** creates plip with energy equal to E. */
     public Plip(double e) {
@@ -51,10 +45,8 @@ public class Plip extends Creature {
      */
     public Color color() {
         r = 99;
+        g = (int) (63 + (1 / MAX_ENERGY) * (energy * (255 - 63)));
         b = 76;
-
-        energySet();
-        g = (int) ((255 - 63) * energy / 2 + 63);
         return color(r, g, b);
     }
 
@@ -67,15 +59,14 @@ public class Plip extends Creature {
      *  private static final variable. This is not required for this lab.
      */
     public void move() {
-        energy = energy - moveEnergyLose;
-        energySet();
+        energy -= 0.15;
     }
 
 
     /** Plips gain 0.2 energy when staying due to photosynthesis. */
     public void stay() {
-        energy = energy + statyEnergyGain;
-        energySet();
+        energy += 0.2;
+        if (energy > MAX_ENERGY) energy = 2;
     }
 
     /** Plips and their offspring each get 50% of the energy, with none
@@ -83,17 +74,16 @@ public class Plip extends Creature {
      *  Plip.
      */
     public Plip replicate() {
-        double babyEnergy = energy * (1 - repEnergyRetained);
-        energy = energy * repEnergyRetained;
-        return new Plip(babyEnergy);
-
+        this.energy *= 0.5;
+        Plip replica = new Plip(this.energy);
+        return replica;
     }
 
     /** Plips take exactly the following actions based on NEIGHBORS:
      *  1. If no empty adjacent spaces, STAY.
      *  2. Otherwise, if energy >= 1, REPLICATE.
      *  3. Otherwise, if any Cloruses, MOVE with 50% probability.
-     *  4. Otherwise, if nothing else, STAY
+     *  4. Otherwise, if nothing else, STAY.
      *
      *  Returns an object of type Action. See Action.java for the
      *  scoop on how Actions work. See SampleCreature.chooseAction()
@@ -101,31 +91,29 @@ public class Plip extends Creature {
      */
     public Action chooseAction(Map<Direction, Occupant> neighbors) {
         List<Direction> empties = getNeighborsOfType(neighbors, "empty");
+        List<Direction> enemies = getNeighborsOfType(neighbors, "clorus");
 
-        List<Direction> clorusSet = getNeighborsOfType(neighbors, "clorus");
-
-        if (empties.isEmpty()) {
+        // If no empty adjacent spaces, STAY.
+        if (empties.size() == 0) {
             return new Action(Action.ActionType.STAY);
-        }
-        if (energy > 1) {
-            Direction moveDir = empties.get(0);
-            return new Action(Action.ActionType.REPLICATE, moveDir);
-        }
-        if (!clorusSet.isEmpty()) {
-            if (HugLifeUtils.random() < moveProbability) {
+        } else {
+            if (energy >= 1) {
+                // Otherwise, if energy >= 1, REPLICATE.
                 Direction moveDir = HugLifeUtils.randomEntry(empties);
-                return new Action(Action.ActionType.MOVE, moveDir);
+                return new Action(Action.ActionType.REPLICATE, moveDir);
+            }
+            if (enemies.size() > 0) {
+                // Otherwise, if any Cloruses, MOVE with 50% probability.
+                if (HugLifeUtils.random() < 0.5) {
+                    Direction moveDir = HugLifeUtils.randomEntry(empties);
+                    return new Action(Action.ActionType.MOVE, moveDir);
+                }
             }
         }
+        // Otherwise, if nothing else, STAY.
         return new Action(Action.ActionType.STAY);
     }
 
 
-    private void energySet() {
-        if (energy > 2)
-        {
-            energy = 2;
-        }
-    }
 
 }
