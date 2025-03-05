@@ -21,8 +21,6 @@ public class Clorus extends Creature {
 
     private static final double repEnergyRetained = 0.5;
 
-    private static final double moveProbability = 0.5;
-
     /** creates plip with energy equal to E. */
     public Clorus(double e) {
         super("clorus");

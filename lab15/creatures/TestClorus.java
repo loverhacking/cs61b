@@ -15,7 +15,7 @@ public class TestClorus {
     public void testBasics() {
         Clorus p = new Clorus(2);
         assertEquals(2, p.energy(), 0.01);
-        assertEquals(new Color(63, 63, 63), p.color());
+        assertEquals(new Color(34, 0, 231), p.color());
         p.move();
         assertEquals(1.97, p.energy(), 0.01);
         p.move();
@@ -69,7 +69,7 @@ public class TestClorus {
         Action actual2 = c.chooseAction(surrounded);
         Action expected2 = new Action(Action.ActionType.ATTACK, Direction.TOP);
 
-        //assertEquals(expected2, actual2);
+        assertEquals(expected2, actual2);
 
         // Test energy >= 1 with one direction empty
         surrounded = new HashMap<>();
