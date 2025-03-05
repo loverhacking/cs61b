@@ -1,9 +1,13 @@
 package creatures;
-import huglife.*;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import java.util.HashMap;
 import java.awt.Color;
+import huglife.Direction;
+import huglife.Action;
+import huglife.Occupant;
+import huglife.Impassible;
+import huglife.Empty;
 
 /** Tests the plip class   
  *  @authr FIXME
@@ -13,7 +17,7 @@ public class TestPlip {
 
     /* Replace with the magic word given in lab.
      * If you are submitting early, just put in "early" */
-    public static final String MAGIC_WORD = "";
+    public static final String MAGIC_WORD = "early";
 
     @Test
     public void testBasics() {
@@ -32,10 +36,11 @@ public class TestPlip {
 
     @Test
     public void testReplicate() {
-        Plip p1 = new Plip(1.5);
-        Plip p2 = p1.replicate();
-        assertNotSame(p1, p2);
-
+        Plip p = new Plip(2);
+        Plip pBaby = p.replicate();
+        assertNotSame(p, pBaby);
+        assertEquals(1, p.energy(), 0.01);
+        assertEquals(1, pBaby.energy(), 0.01);
     }
 
     @Test
@@ -53,23 +58,45 @@ public class TestPlip {
 
         Action actual = p.chooseAction(surrounded);
         Action expected = new Action(Action.ActionType.STAY);
+
         assertEquals(expected, actual);
 
-        Plip p2 = new Plip(1.5);
-        HashMap<Direction, Occupant> surrounded2 = new HashMap<Direction, Occupant>();
-        surrounded2.put(Direction.TOP, new Impassible());
-        surrounded2.put(Direction.BOTTOM, new Impassible());
-        surrounded2.put(Direction.LEFT, new Impassible());
-        surrounded2.put(Direction.RIGHT, new Impassible());
+        // Test energy > 1 with one direction empty
+        p = new Plip(1.2);
+        surrounded = new HashMap<>();
+        surrounded.put(Direction.TOP, new Empty());
+        surrounded.put(Direction.BOTTOM, new Impassible());
+        surrounded.put(Direction.LEFT, new Impassible());
+        surrounded.put(Direction.RIGHT, new Impassible());
+        Action actualP = p.chooseAction(surrounded);
+        Action expectedP = new Action(Action.ActionType.REPLICATE, Direction.TOP);
 
-        Action actual2 = p2.chooseAction(surrounded2);
-        Action expected2 = new Action(Action.ActionType.REPLICATE, null);
-        assertEquals(expected2, actual2);
+        assertEquals(expectedP, actualP);
 
-        Plip p3 = new Plip(0.5);
-        Action actual3 = p3.chooseAction(surrounded2);
-        Action expected3 = new Action(Action.ActionType.STAY);
-        assertEquals(expected3, actual3);
+        // Test energy <= 1 with top empty and bottom clorus
+        p = new Plip(0.8);
+        surrounded = new HashMap<>();
+        surrounded.put(Direction.TOP, new Empty());
+        surrounded.put(Direction.BOTTOM, new Clorus());
+        surrounded.put(Direction.LEFT, new Impassible());
+        surrounded.put(Direction.RIGHT, new Impassible());
+
+        int countMove = 0;
+        int countStay = 0;
+        int runTimes = 10;
+        for (int i = 0;i < runTimes;i++) {
+            Action actualp2 = p.chooseAction(surrounded);
+            Action expectedMove = new Action(Action.ActionType.MOVE, Direction.TOP);
+            Action expectedStay = new Action(Action.ActionType.STAY);
+            if (actualp2.equals(expectedMove)) {
+                countMove = countMove + 1;
+            }
+            if (actualp2.equals(expectedStay)) {
+                countStay = countStay + 1;
+            }
+        }
+        assertNotEquals(countMove, 0);
+        assertEquals(countStay, runTimes - countMove);
 
     }
 
