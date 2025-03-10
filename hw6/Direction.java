@@ -3,7 +3,7 @@ public class Direction {
 
     private final int x;
     private final int y;
-    private int visited;
+    private boolean[][] visited;
     private String value = null;
 
 
@@ -25,12 +25,12 @@ public class Direction {
     }
 
 
-    public int getVisited() {
+    public boolean[][] getVisited() {
         return this.visited;
     }
 
 
-    public void setVisited(int visited) {
+    public void setVisited(boolean[][] visited) {
         this.visited = visited;
     }
 

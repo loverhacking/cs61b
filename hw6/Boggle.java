@@ -80,7 +80,7 @@ public class Boggle {
                 String s = String.valueOf(boardArray[i][j]);
                 if (t.startsWith(s)) {
                     Direction d = new Direction(i, j);
-                    d.setVisited(1 << (i * N + j));
+                    d.setVisited(new boolean[M][N]);
                     d.setValue(s);
 
                     list.add(d);
@@ -125,9 +125,11 @@ public class Boggle {
             int dx = d.getX();
             int dy = d.getY();
             String value = d.getValue();
-            int visited = d.getVisited();
+            boolean[][] visited = d.getVisited();
 
             LinkedList<Direction> neighbors = getDirections(dx, dy);
+
+            visited[dx][dy] = true;
 
 
             if (value.length() >= 3 && t.contains(value)
@@ -141,11 +143,14 @@ public class Boggle {
                 int ddx = dd.getX();
                 int ddy = dd.getY();
 
-                int pos = ddx * N + ddy;
 
-
-                if ((visited & (1 << pos)) != 0) {
+                if (visited[ddx][ddy]) {
                     continue;
+                }
+
+                boolean[][] newVisited = new boolean[M][N];
+                for (int x = 0; x < M; x++) {
+                    System.arraycopy(visited[x], 0, newVisited[x], 0, N);
                 }
 
 
@@ -155,7 +160,7 @@ public class Boggle {
                 if (temp.length() >= 3 && !t.startsWith(temp)) {
                     continue;
                 }
-                dd.setVisited(visited | (1 << pos));
+                dd.setVisited(newVisited);
                 dd.setValue(temp);
 
                 list.addLast(dd);
@@ -199,6 +204,8 @@ public class Boggle {
     private static boolean checkInArray(int i, int j) {
         return i >= 0 && i < M && j >= 0 && j < N;
     }
+
+
 
 
 
