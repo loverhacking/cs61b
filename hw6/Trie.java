@@ -31,7 +31,7 @@ public class Trie {
     }
 
     // 辅助方法：查找前缀对应的最后一个节点
-    private TrieNode searchPrefix(String prefix) {
+    public TrieNode searchPrefix(String prefix) {
         TrieNode node = root;
         for (char ch : prefix.toCharArray()) {
             if (!node.containsKey(ch)) {
@@ -43,7 +43,7 @@ public class Trie {
     }
 
     // Trie节点内部类
-    private static class TrieNode {
+    public static class TrieNode {
         private final TreeMap<Character, TrieNode> children;
         private boolean isEnd;
 

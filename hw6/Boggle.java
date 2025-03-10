@@ -1,7 +1,4 @@
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.PriorityQueue;
+import java.util.*;
 
 public class Boggle {
 
@@ -16,8 +13,10 @@ public class Boggle {
     /** the width of boardArray */
     private static int N;
 
-    /** record whether the char in boardArray has been visited */
-    private static boolean[][] visited;
+
+
+
+    private static LinkedList<Direction> list;
 
     private static Trie t;
 
@@ -52,8 +51,6 @@ public class Boggle {
 
         // change board to char[][] array
         boardArray = new char[M][N];
-        visited = new boolean[M][N];
-
 
 
         for (int i = 0; i < M; i++) {
@@ -67,8 +64,6 @@ public class Boggle {
             t.add(a);
         }
 
-
-
         PriorityQueue<String> matchWordSet = new PriorityQueue<>(new Comparator<String>() {
             @Override
             public int compare(String o1, String o2) {
@@ -79,15 +74,23 @@ public class Boggle {
             }
         });
 
-
+        list = new LinkedList<>();
         for (int i = 0; i < M; i++) {
             for (int j = 0; j < N; j++) {
-                setFalse();
-                solveHelper(i, j, "", matchWordSet);
+                String s = String.valueOf(boardArray[i][j]);
+                if (t.startsWith(s)) {
+                    Direction d = new Direction(i, j);
+                    d.setVisited(1 << (i * N + j));
+                    d.setValue(s);
+
+                    list.add(d);
+
+                    solveHelper(matchWordSet);
+                }
+
+
             }
         }
-
-        //System.out.println(matchWordSet);
 
         LinkedList<String> ans = new LinkedList<>();
         for (int i = 0; i < k; i++) {
@@ -113,24 +116,69 @@ public class Boggle {
         return;
     }
 
-    private static void solveHelper(int starti, int startj, String word, PriorityQueue<String> matchWordSet) {
-        visited[starti][startj] = true;
+    private static void solveHelper(PriorityQueue<String> matchWordSet) {
+
+
+        while (!list.isEmpty()) {
+            Direction d = list.removeLast();
+
+            int dx = d.getX();
+            int dy = d.getY();
+            String value = d.getValue();
+            int visited = d.getVisited();
+
+            LinkedList<Direction> neighbors = getDirections(dx, dy);
+
+
+            if (value.length() >= 3 && t.contains(value)
+                    && !matchWordSet.contains(value)) {
+                matchWordSet.add(value);
+            }
+
+            while (!neighbors.isEmpty()) {
+                Direction dd = neighbors.removeLast();
+
+                int ddx = dd.getX();
+                int ddy = dd.getY();
+
+                int pos = ddx * N + ddy;
+
+
+                if ((visited & (1 << pos)) != 0) {
+                    continue;
+                }
+
+
+
+                String temp = addString(value, boardArray[ddx][ddy]);
+
+                if (temp.length() >= 3 && !t.startsWith(temp)) {
+                    continue;
+                }
+                dd.setVisited(visited | (1 << pos));
+                dd.setValue(temp);
+
+                list.addLast(dd);
+
+
+
+            }
+
+        }
+
+    }
+
+    private static String addString(String word, char c) {
 
         StringBuilder sb = new StringBuilder();
+
         sb.append(word);
-        sb.append(boardArray[starti][startj]);
-        String newWord = sb.toString();
+        sb.append(c);
+        return sb.toString();
+    }
 
-
-        if (newWord.length() >= 3 && t.contains(newWord) && !matchWordSet.contains(newWord)) {
-            matchWordSet.add(newWord);
-        }
-
-        if (newWord.length() >= 3 && !t.startsWith(newWord)) {
-            visited[starti][startj] = false;
-            return;
-        }
-
+    private static LinkedList<Direction> getDirections(int starti, int startj) {
+        LinkedList<Direction> directions = new LinkedList<>();
 
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
@@ -138,28 +186,23 @@ public class Boggle {
                     continue;
                 }
                 if (checkInArray(starti + i, startj + j)) {
-                    solveHelper(starti + i, startj + j, newWord, matchWordSet);
+                    Direction d = new Direction(starti + i, startj + j);
+                    directions.add(d);
                 }
             }
         }
 
-        visited[starti][startj] = false;
-
+        return directions;
     }
 
-    /** set all element in visited[][] to false */
-    private static void setFalse() {
-        for (int i = 0; i < M; i++) {
-            for (int j = 0; j < N; j++) {
-                visited[i][j] = false;
-            }
-        }
-    }
+
     private static boolean checkInArray(int i, int j) {
-        return i >= 0 && i < M && j >= 0 && j < N && !visited[i][j];
+        return i >= 0 && i < M && j >= 0 && j < N;
     }
 
-    
+
+
+
 }
 
 
