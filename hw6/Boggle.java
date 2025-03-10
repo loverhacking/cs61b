@@ -148,18 +148,17 @@ public class Boggle {
                     continue;
                 }
 
+                String temp = addString(value, boardArray[ddx][ddy]);
+                if (temp.length() >= 3 && !t.startsWith(temp)) {
+                    continue;
+                }
+
                 boolean[][] newVisited = new boolean[M][N];
                 for (int x = 0; x < M; x++) {
                     System.arraycopy(visited[x], 0, newVisited[x], 0, N);
                 }
 
-
-
-                String temp = addString(value, boardArray[ddx][ddy]);
-
-                if (temp.length() >= 3 && !t.startsWith(temp)) {
-                    continue;
-                }
+                
                 dd.setVisited(newVisited);
                 dd.setValue(temp);
 
@@ -204,6 +203,8 @@ public class Boggle {
     private static boolean checkInArray(int i, int j) {
         return i >= 0 && i < M && j >= 0 && j < N;
     }
+
+
 
 
 
