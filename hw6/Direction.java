@@ -1,3 +1,4 @@
+
 public class Direction {
 
     private int x;

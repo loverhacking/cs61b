@@ -24,14 +24,9 @@ public class Boggle {
     static String dictPath = "words.txt";
 
 
-
-
-
-
-
     /**
      * Solves a Boggle puzzle.
-     * 
+     *
      * @param k The maximum number of words to return.
      * @param boardFilePath The file path to Boggle board file.
      * @return a list of words found in given Boggle board.
@@ -91,8 +86,6 @@ public class Boggle {
             }
         }
 
-
-
         //System.out.println(matchWordSet);
 
         LinkedList<String> ans = new LinkedList<>();
@@ -137,14 +130,18 @@ public class Boggle {
             return;
         }
 
-        LinkedList<Direction> neighbors = getDirections(starti, startj);
 
-
-        for (Direction d : neighbors) {
-            int x = d.getX();
-            int y = d.getY();
-            solveHelper(x, y, newWord, matchWordSet);
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                if (i == 0 && j == 0) {
+                    continue;
+                }
+                if (checkInArray(starti + i, startj + j)) {
+                    solveHelper(starti + i, startj + j, newWord, matchWordSet);
+                }
+            }
         }
+
         visited[starti][startj] = false;
 
     }
@@ -157,37 +154,10 @@ public class Boggle {
             }
         }
     }
-
-
-
-
-    private static LinkedList<Direction> getDirections(int starti, int startj) {
-        LinkedList<Direction> directions = new LinkedList<>();
-
-        directions.addLast(new Direction(starti, startj - 1));
-        directions.addLast(new Direction(starti - 1, startj - 1));
-        directions.addLast(new Direction(starti - 1, startj));
-        directions.addLast(new Direction(starti - 1, startj + 1));
-        directions.addLast(new Direction(starti, startj + 1));
-        directions.addLast(new Direction(starti + 1, startj + 1));
-        directions.addLast(new Direction(starti + 1, startj));
-        directions.addLast(new Direction(starti + 1, startj - 1));
-
-        LinkedList<Direction> validDirections = new LinkedList<>();
-        for (Direction d : directions) {
-            int x = d.getX();
-            int y = d.getY();
-            if (checkInArray(x, y)) {
-                validDirections.add(d);
-            }
-        }
-        return validDirections;
-    }
-
     private static boolean checkInArray(int i, int j) {
         return i >= 0 && i < M && j >= 0 && j < N && !visited[i][j];
     }
-
-    
-
 }
+
+
+
