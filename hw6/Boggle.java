@@ -13,6 +13,8 @@ public class Boggle {
     /** the width of boardArray */
     private static int N;
 
+    private static boolean[][] visited;
+
 
 
 
@@ -75,12 +77,13 @@ public class Boggle {
         });
 
         list = new LinkedList<>();
+        visited = new boolean[M][N];
         for (int i = 0; i < M; i++) {
             for (int j = 0; j < N; j++) {
                 String s = String.valueOf(boardArray[i][j]);
                 if (t.startsWith(s)) {
                     Direction d = new Direction(i, j);
-                    d.setVisited(new boolean[M][N]);
+                    d.setBacktrack(false);
                     d.setValue(s);
 
                     list.add(d);
@@ -125,7 +128,12 @@ public class Boggle {
             int dx = d.getX();
             int dy = d.getY();
             String value = d.getValue();
-            boolean[][] visited = d.getVisited();
+
+            if (d.isBacktrack()) {
+                visited[dx][dy] = false;
+                continue;
+            }
+
 
             LinkedList<Direction> neighbors = getDirections(dx, dy);
 
@@ -136,6 +144,10 @@ public class Boggle {
                     && !matchWordSet.contains(value)) {
                 matchWordSet.add(value);
             }
+
+            Direction temp = new Direction(dx, dy);
+            temp.setBacktrack(true);
+            list.addLast(temp);
 
             while (!neighbors.isEmpty()) {
                 Direction dd = neighbors.removeLast();
@@ -148,19 +160,14 @@ public class Boggle {
                     continue;
                 }
 
-                String temp = addString(value, boardArray[ddx][ddy]);
-                if (temp.length() >= 3 && !t.startsWith(temp)) {
+                String s = addString(value, boardArray[ddx][ddy]);
+                if (s.length() >= 3 && !t.startsWith(s)) {
                     continue;
                 }
 
-                boolean[][] newVisited = new boolean[M][N];
-                for (int x = 0; x < M; x++) {
-                    System.arraycopy(visited[x], 0, newVisited[x], 0, N);
-                }
 
-                
-                dd.setVisited(newVisited);
-                dd.setValue(temp);
+                dd.setBacktrack(false);
+                dd.setValue(s);
 
                 list.addLast(dd);
 
@@ -204,6 +211,12 @@ public class Boggle {
         return i >= 0 && i < M && j >= 0 && j < N;
     }
 
+    
+//    public static void main(String[] args) {
+//        Boggle boggle = new Boggle();
+//        System.out.println(solve(7, "smallBoard.txt"));
+//    }
+//
 
 
 

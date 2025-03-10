@@ -3,7 +3,7 @@ public class Direction {
 
     private final int x;
     private final int y;
-    private boolean[][] visited;
+    private boolean isBacktrack;  // 标记是否为回溯阶段
     private String value = null;
 
 
@@ -24,18 +24,16 @@ public class Direction {
         return this.value;
     }
 
-
-    public boolean[][] getVisited() {
-        return this.visited;
-    }
-
-
-    public void setVisited(boolean[][] visited) {
-        this.visited = visited;
-    }
-
     public void setValue(String newValue) {
         value = newValue;
+    }
+
+    public boolean isBacktrack() {
+        return this.isBacktrack;
+    }
+
+    public void setBacktrack(boolean isBacktrack) {
+        this.isBacktrack = isBacktrack;
     }
 
 }
