@@ -1,6 +1,7 @@
-import edu.princeton.cs.algs4.TrieSET;
-
-import java.util.*;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.PriorityQueue;
 
 public class Boggle {
 
@@ -18,7 +19,7 @@ public class Boggle {
     /** record whether the char in boardArray has been visited */
     private static boolean[][] visited;
 
-    private static TrieSET t;
+    private static Trie t;
 
     // File path of dictionary file
     static String dictPath = "words.txt";
@@ -59,7 +60,7 @@ public class Boggle {
             boardArray[i] = strings[i].toCharArray();
         }
 
-        t = new TrieSET();
+        t = new Trie();
         In wordFile = new In(dictPath);
         while (wordFile.hasNextLine()) {
             String a = wordFile.readLine();
@@ -125,7 +126,7 @@ public class Boggle {
             matchWordSet.add(newWord);
         }
 
-        if (newWord.length() >= 3 && !t.keysWithPrefix(newWord).iterator().hasNext()) {
+        if (newWord.length() >= 3 && !t.startsWith(newWord)) {
             visited[starti][startj] = false;
             return;
         }
@@ -157,6 +158,8 @@ public class Boggle {
     private static boolean checkInArray(int i, int j) {
         return i >= 0 && i < M && j >= 0 && j < N && !visited[i][j];
     }
+
+    
 }
 
 
