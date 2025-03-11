@@ -7,9 +7,12 @@ public class Direction {
     private String value = null;
 
 
-    public Direction(int x, int y) {
+    public Direction(int x, int y,
+                     boolean backtrack, String value) {
         this.x = x;
         this.y = y;
+        this.isBacktrack = backtrack;
+        this.value = value;
     }
 
     public int getX() {
@@ -24,16 +27,8 @@ public class Direction {
         return this.value;
     }
 
-    public void setValue(String newValue) {
-        value = newValue;
-    }
-
     public boolean isBacktrack() {
         return this.isBacktrack;
-    }
-
-    public void setBacktrack(boolean isBacktrack) {
-        this.isBacktrack = isBacktrack;
     }
 
 }

@@ -82,16 +82,9 @@ public class Boggle {
             for (int j = 0; j < N; j++) {
                 String s = String.valueOf(boardArray[i][j]);
                 if (t.startsWith(s)) {
-                    Direction d = new Direction(i, j);
-                    d.setBacktrack(false);
-                    d.setValue(s);
-
-                    list.add(d);
-
+                    list.add(new Direction(i, j, false, s));
                     solveHelper(matchWordSet);
                 }
-
-
             }
         }
 
@@ -134,9 +127,6 @@ public class Boggle {
                 continue;
             }
 
-
-            LinkedList<Direction> neighbors = getDirections(dx, dy);
-
             visited[dx][dy] = true;
 
 
@@ -145,36 +135,35 @@ public class Boggle {
                 matchWordSet.add(value);
             }
 
-            Direction temp = new Direction(dx, dy);
-            temp.setBacktrack(true);
-            list.addLast(temp);
+            list.addLast(new Direction(dx, dy, true, value));
 
-            while (!neighbors.isEmpty()) {
-                Direction dd = neighbors.removeLast();
+            for (int i = -1; i <= 1; i++) {
+                for (int j = -1; j <= 1; j++) {
 
-                int ddx = dd.getX();
-                int ddy = dd.getY();
+                    if (i == 0 && j == 0) {
+                        continue;
+                    }
+
+                    int ddx = dx + i;
+                    int ddy = dy + j;
 
 
-                if (visited[ddx][ddy]) {
-                    continue;
+                    if (!checkInArray(ddx, ddy)) {
+                        continue;
+                    }
+
+                    if (visited[ddx][ddy]) {
+                        continue;
+                    }
+
+                    String s = addString(value, boardArray[ddx][ddy]);
+                    if (s.length() >= 3 && !t.startsWith(s)) {
+                        continue;
+                    }
+
+                    list.addLast(new Direction(ddx, ddy, false, s));
                 }
-
-                String s = addString(value, boardArray[ddx][ddy]);
-                if (s.length() >= 3 && !t.startsWith(s)) {
-                    continue;
-                }
-
-
-                dd.setBacktrack(false);
-                dd.setValue(s);
-
-                list.addLast(dd);
-
-
-
             }
-
         }
 
     }
@@ -188,35 +177,14 @@ public class Boggle {
         return sb.toString();
     }
 
-    private static LinkedList<Direction> getDirections(int starti, int startj) {
-        LinkedList<Direction> directions = new LinkedList<>();
-
-        for (int i = -1; i <= 1; i++) {
-            for (int j = -1; j <= 1; j++) {
-                if (i == 0 && j == 0) {
-                    continue;
-                }
-                if (checkInArray(starti + i, startj + j)) {
-                    Direction d = new Direction(starti + i, startj + j);
-                    directions.add(d);
-                }
-            }
-        }
-
-        return directions;
-    }
 
 
     private static boolean checkInArray(int i, int j) {
         return i >= 0 && i < M && j >= 0 && j < N;
     }
 
-    
-//    public static void main(String[] args) {
-//        Boggle boggle = new Boggle();
-//        System.out.println(solve(7, "smallBoard.txt"));
-//    }
-//
+
+
 
 
 
