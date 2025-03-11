@@ -1,4 +1,4 @@
-import java.util.TreeMap;
+import java.util.HashMap;
 
 public class Trie {
     private TrieNode root;
@@ -44,11 +44,11 @@ public class Trie {
 
     // Trie节点内部类
     public static class TrieNode {
-        private final TreeMap<Character, TrieNode> children;
+        private final HashMap<Character, TrieNode> children;
         private boolean isEnd;
 
         public TrieNode() {
-            children = new TreeMap<>();
+            children = new HashMap<>();
             isEnd = false;
         }
 

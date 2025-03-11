@@ -15,6 +15,8 @@ public class Boggle {
 
     private static boolean[][] visited;
 
+    private static LinkedList<String> matchWordSet;
+
 
 
 
@@ -38,6 +40,7 @@ public class Boggle {
      */
     public static List<String> solve(int k, String boardFilePath) {
         // YOUR CODE HERE
+
 
         In inputFile = new In(boardFilePath);
         if (k < 0 || !inputFile.exists()) {
@@ -66,15 +69,7 @@ public class Boggle {
             t.add(a);
         }
 
-        PriorityQueue<String> matchWordSet = new PriorityQueue<>(new Comparator<String>() {
-            @Override
-            public int compare(String o1, String o2) {
-                if (o1.length() != o2.length()) {
-                    return -(o1.length() - o2.length());
-                }
-                return o1.compareTo(o2);
-            }
-        });
+        matchWordSet = new LinkedList<>();
 
         list = new LinkedList<>();
         visited = new boolean[M][N];
@@ -84,20 +79,13 @@ public class Boggle {
                 if (t.startsWith(s)) {
                     Trie.TrieNode node = t.searchPrefix(s);
                     list.add(new Direction(i, j, false, s, node));
-                    solveHelper(matchWordSet);
+                    solveHelper(k);
                 }
             }
         }
 
-        LinkedList<String> ans = new LinkedList<>();
-        for (int i = 0; i < k; i++) {
-            ans.add(matchWordSet.poll());
-            if (matchWordSet.isEmpty()) {
-                break;
-            }
-        }
 
-        return ans;
+        return matchWordSet;
     }
 
     private static void checkIsRectangular(String[] strings) {
@@ -113,7 +101,7 @@ public class Boggle {
         return;
     }
 
-    private static void solveHelper(PriorityQueue<String> matchWordSet) {
+    private static void solveHelper(int k) {
 
 
         while (!list.isEmpty()) {
@@ -134,7 +122,8 @@ public class Boggle {
 
             if (value.length() >= 3 && node != null && node.isEnd()
                     && !matchWordSet.contains(value)) {
-                matchWordSet.add(value);
+                matchWordSet.addLast(value);
+                maintainSet(k);
             }
 
             list.addLast(new Direction(dx, dy, true, value, node));
@@ -173,6 +162,23 @@ public class Boggle {
 
     }
 
+    private static void maintainSet(int k) {
+        matchWordSet.sort(new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                if (o1.length() != o2.length()) {
+                    return -(o1.length() - o2.length());
+                }
+                return o1.compareTo(o2);
+            }
+        });
+        if (matchWordSet.size() > k) {
+            matchWordSet.removeLast();
+        }
+
+    }
+
+
     private static String addString(String word, char c) {
 
         StringBuilder sb = new StringBuilder();
@@ -186,6 +192,8 @@ public class Boggle {
     private static boolean checkInArray(int i, int j) {
         return i >= 0 && i < M && j >= 0 && j < N;
     }
+
+
 
 
 
