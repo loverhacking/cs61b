@@ -3,10 +3,15 @@ public class Direction {
 
     private final int x;
     private final int y;
-    private boolean isBacktrack;  // 标记是否为回溯阶段
-    private String value = null;
-    private Trie.TrieNode node;
 
+    /** whether the node is in backtracking stage */
+    private final boolean isBacktrack;
+
+    /** record the current searched string */
+    private final String value;
+
+    /** record the location node in Trie */
+    private final Trie.TrieNode node;
 
     public Direction(int x, int y,
                      boolean backtrack, String value, Trie.TrieNode node) {

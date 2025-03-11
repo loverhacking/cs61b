@@ -7,7 +7,7 @@ public class Trie {
         root = new TrieNode();
     }
 
-    // 插入单词到Trie中
+    /** inset word into Trie */
     public void add(String word) {
         TrieNode node = root;
         for (char ch : word.toCharArray()) {
@@ -19,18 +19,18 @@ public class Trie {
         node.setEnd();
     }
 
-    // 检查单词是否存在于Trie中
+    /** check whether word in Trie */
     public boolean contains(String word) {
         TrieNode node = searchPrefix(word);
         return node != null && node.isEnd();
     }
 
-    // 检查是否存在以prefix为前缀的单词
+    /** Check for the presence of words with prefix */
     public boolean startsWith(String prefix) {
         return searchPrefix(prefix) != null;
     }
 
-    // 辅助方法：查找前缀对应的最后一个节点
+    /** Find the last node corresponding to the prefix */
     public TrieNode searchPrefix(String prefix) {
         TrieNode node = root;
         for (char ch : prefix.toCharArray()) {
@@ -42,7 +42,7 @@ public class Trie {
         return node;
     }
 
-    // Trie节点内部类
+    // Trie class
     public static class TrieNode {
         private final HashMap<Character, TrieNode> children;
         private boolean isEnd;
