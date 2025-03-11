@@ -82,7 +82,8 @@ public class Boggle {
             for (int j = 0; j < N; j++) {
                 String s = String.valueOf(boardArray[i][j]);
                 if (t.startsWith(s)) {
-                    list.add(new Direction(i, j, false, s));
+                    Trie.TrieNode node = t.searchPrefix(s);
+                    list.add(new Direction(i, j, false, s, node));
                     solveHelper(matchWordSet);
                 }
             }
@@ -121,6 +122,7 @@ public class Boggle {
             int dx = d.getX();
             int dy = d.getY();
             String value = d.getValue();
+            Trie.TrieNode node = d.getNode();
 
             if (d.isBacktrack()) {
                 visited[dx][dy] = false;
@@ -130,12 +132,12 @@ public class Boggle {
             visited[dx][dy] = true;
 
 
-            if (value.length() >= 3 && t.contains(value)
+            if (value.length() >= 3 && node != null && node.isEnd()
                     && !matchWordSet.contains(value)) {
                 matchWordSet.add(value);
             }
 
-            list.addLast(new Direction(dx, dy, true, value));
+            list.addLast(new Direction(dx, dy, true, value, node));
 
             for (int i = -1; i <= 1; i++) {
                 for (int j = -1; j <= 1; j++) {
@@ -148,6 +150,7 @@ public class Boggle {
                     int ddy = dy + j;
 
 
+
                     if (!checkInArray(ddx, ddy)) {
                         continue;
                     }
@@ -156,12 +159,14 @@ public class Boggle {
                         continue;
                     }
 
-                    String s = addString(value, boardArray[ddx][ddy]);
-                    if (s.length() >= 3 && !t.startsWith(s)) {
+                    char c = boardArray[ddx][ddy];
+                    Trie.TrieNode nextNode = node.get(c);
+                    if (nextNode == null) {
                         continue;
                     }
 
-                    list.addLast(new Direction(ddx, ddy, false, s));
+                    list.addLast(new Direction(ddx, ddy,
+                            false, addString(value, c), nextNode));
                 }
             }
         }
@@ -178,7 +183,6 @@ public class Boggle {
     }
 
 
-
     private static boolean checkInArray(int i, int j) {
         return i >= 0 && i < M && j >= 0 && j < N;
     }
@@ -186,10 +190,7 @@ public class Boggle {
 
 
 
-
-
-
-
+    
 
 
 }
