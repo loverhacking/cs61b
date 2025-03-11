@@ -1,4 +1,6 @@
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+
 
 public class Boggle {
 
@@ -16,9 +18,6 @@ public class Boggle {
     private static boolean[][] visited;
 
     private static LinkedList<String> matchWordSet;
-
-
-
 
     private static LinkedList<Direction> list;
 
@@ -83,7 +82,6 @@ public class Boggle {
                 }
             }
         }
-
 
         return matchWordSet;
     }
@@ -192,14 +190,6 @@ public class Boggle {
     private static boolean checkInArray(int i, int j) {
         return i >= 0 && i < M && j >= 0 && j < N;
     }
-
-
-
-
-
-
-    
-
 
 }
 
