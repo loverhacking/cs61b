@@ -1,5 +1,9 @@
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Set;
+
 
 
 
@@ -58,10 +62,6 @@ public class BinaryTrie implements Serializable {
     public Match longestPrefixMatch(BitSequence querySequence) {
         Node copy = root;
 
-        if (copy == null) {
-            return null;
-        }
-
         int i;
         for (i = 0; i < querySequence.length(); i++) {
 
@@ -115,5 +115,5 @@ public class BinaryTrie implements Serializable {
         result.append(a);
         return result.toString();
     }
-    
+
 }
