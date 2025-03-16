@@ -1,5 +1,13 @@
-import java.util.*;
-import java.util.concurrent.atomic.AtomicStampedReference;
+
+import java.util.List;
+import java.util.PriorityQueue;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.LinkedList;
+import java.util.Comparator;
+
+
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,15 +35,15 @@ public class Router {
     private static GraphDB graph;
     private static long startId;
     private static long endId;
-    private static PriorityQueue<gNode> pq;
+    private static PriorityQueue<GNode> pq;
     private static TreeMap<Long, Double> distTo;
     private static TreeMap<Long, Long> edgeTo;
     private static TreeSet<Long> marked;
 
-    private static class gNode {
+    private static class GNode {
         final long id;
         final double priority;
-        private gNode(long id) {
+        private GNode(long id) {
             this.id = id;
             this.priority = distTo.get(id) + h(id);
 
@@ -62,17 +70,17 @@ public class Router {
         distTo.put(startId, 0.0);
         edgeTo.put(startId, startId);
 
-        pq = new PriorityQueue<>(new Comparator<gNode>() {
+        pq = new PriorityQueue<>(new Comparator<GNode>() {
 
             @Override
-            public int compare(gNode o1, gNode o2) {
+            public int compare(GNode o1, GNode o2) {
                 return Double.compare(o1.priority, o2.priority);
             }
         });
 
-        pq.offer(new gNode(startId));
+        pq.offer(new GNode(startId));
 
-        Astar();
+        aStar();
 
         LinkedList<Long> path = new LinkedList<>();
 
@@ -90,13 +98,13 @@ public class Router {
         return path;
     }
 
-    private static void Astar() {
+    private static void aStar() {
 
 
         while (!pq.isEmpty()) {
-            gNode gnodeId = pq.poll();
+            GNode gNodeId = pq.poll();
 
-            long nodeId = gnodeId.id;
+            long nodeId = gNodeId.id;
 
             if (marked.contains(nodeId)) {
                 continue;
@@ -115,7 +123,7 @@ public class Router {
                     distTo.put(neighbor, newDist);
                     edgeTo.put(neighbor, nodeId);
                 }
-                pq.offer(new gNode(neighbor));
+                pq.offer(new GNode(neighbor));
 
             }
         }
