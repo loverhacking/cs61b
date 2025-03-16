@@ -55,6 +55,7 @@ public class TestGraphBuildingTiny {
         for (long neighbor : graphTiny.adjacent(v)) {
             actual.add(neighbor);
         }
+        System.out.println(expected);
         assertEquals(expected, actual);
     }
 

@@ -1,5 +1,5 @@
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicStampedReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,10 +23,109 @@ public class Router {
      * @param destlat The latitude of the destination location.
      * @return A list of node id's in the order visited on the shortest path.
      */
+
+    private static GraphDB graph;
+    private static long startId;
+    private static long endId;
+    private static PriorityQueue<gNode> pq;
+    private static TreeMap<Long, Double> distTo;
+    private static TreeMap<Long, Long> edgeTo;
+    private static TreeSet<Long> marked;
+
+    private static class gNode {
+        final long id;
+        final double priority;
+        private gNode(long id) {
+            this.id = id;
+            this.priority = distTo.get(id) + h(id);
+
+        }
+    }
+
     public static List<Long> shortestPath(GraphDB g, double stlon, double stlat,
                                           double destlon, double destlat) {
-        return null; // FIXME
+
+
+
+        graph = g;
+        startId = g.closest(stlon, stlat);
+        endId = g.closest(destlon, destlat);
+
+        distTo = new TreeMap<>();
+        edgeTo = new TreeMap<>();
+        marked = new TreeSet<>();
+
+        for (Long id: graph.vertices()) {
+            distTo.put(id, Double.MAX_VALUE);
+        }
+
+        distTo.put(startId, 0.0);
+        edgeTo.put(startId, startId);
+
+        pq = new PriorityQueue<>(new Comparator<gNode>() {
+
+            @Override
+            public int compare(gNode o1, gNode o2) {
+                return Double.compare(o1.priority, o2.priority);
+            }
+        });
+
+        pq.offer(new gNode(startId));
+
+        Astar();
+
+        LinkedList<Long> path = new LinkedList<>();
+
+        long temp = endId;
+        while (temp != startId) {
+            if (edgeTo.get(temp) == null) {
+                return new LinkedList<>();
+            }
+            path.addFirst(temp);
+            temp = edgeTo.get(temp);
+        }
+        path.addFirst(startId);
+
+
+        return path;
     }
+
+    private static void Astar() {
+
+
+        while (!pq.isEmpty()) {
+            gNode gnodeId = pq.poll();
+
+            long nodeId = gnodeId.id;
+
+            if (marked.contains(nodeId)) {
+                continue;
+            }
+
+            if (nodeId == endId) {
+                return;
+            }
+
+            marked.add(nodeId);
+
+            for (long neighbor: graph.adjacent(nodeId)) {
+                double newDist = distTo.get(nodeId)
+                        + graph.distance(nodeId, neighbor);
+                if (newDist < distTo.get(neighbor)) {
+                    distTo.put(neighbor, newDist);
+                    edgeTo.put(neighbor, nodeId);
+                }
+                pq.offer(new gNode(neighbor));
+
+            }
+        }
+
+    }
+
+    private static double h(long id) {
+        return graph.distance(id, endId);
+    }
+
 
     /**
      * Create the list of directions corresponding to a route on the graph.
@@ -160,4 +259,6 @@ public class Router {
             return Objects.hash(direction, way, distance);
         }
     }
+
+
 }

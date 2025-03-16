@@ -9,8 +9,26 @@ import java.util.Map;
  */
 public class Rasterer {
 
+
+    private final double ROOT_ULLAT = MapServer.ROOT_ULLAT;
+    private final double ROOT_ULLON = MapServer.ROOT_ULLON;
+    private final double ROOT_LRLAT = MapServer.ROOT_LRLAT;
+    private final double ROOT_LRLON = MapServer.ROOT_LRLON;
+    private final int TILE_SIZE = MapServer.TILE_SIZE;
+
+    private double[] LonDPP = new double[8];
+
     public Rasterer() {
-        // YOUR CODE HERE
+
+        LonDPP[0] = calLonDPP(ROOT_LRLON, ROOT_ULLON, TILE_SIZE);
+        for (int i = 0; i < 7; i++) {
+            LonDPP[i + 1] = LonDPP[i] / 2;
+        }
+
+    }
+
+    private double calLonDPP(double lrLon, double ulLon, int width) {
+        return (lrLon - ulLon) / width;
     }
 
     /**
@@ -42,11 +60,86 @@ public class Rasterer {
      *                    forget to set this to true on success! <br>
      */
     public Map<String, Object> getMapRaster(Map<String, Double> params) {
-        // System.out.println(params);
+
+        double lrlon = params.get("lrlon");
+        double ullon = params.get("ullon");
+        double w = params.get("w");
+        double h = params.get("h");
+        double ullat = params.get("ullat");
+        double lrlat = params.get("lrlat");
+
+        // find the given query map LonDPP
+        double queryLonDPP = calLonDPP(lrlon, ullon, (int) w);
+
+        // find the best "depth"
+        int bestIndex = 7;
+
+        for (int i = LonDPP.length - 1; i >= 0; i--) {
+            if (LonDPP[i] > queryLonDPP && i != 7) {
+                bestIndex = i + 1;
+                break;
+            }
+        }
+
+        // the side length of pixels at given depth
+        int lengthPixel = (int) Math.pow(2, bestIndex);
+
+
+        double xLengthPerPixel = (ROOT_LRLON - ROOT_ULLON) / lengthPixel;
+        double yLengthPerPixel = (ROOT_ULLAT - ROOT_LRLAT) / lengthPixel;
+
+        // xstart: calculate the leftmost longitude
+        int xstartNum = (int) Math.floor((ullon - ROOT_ULLON) / xLengthPerPixel);
+        int xendNum = (int) Math.ceil((lrlon - ROOT_ULLON) / xLengthPerPixel);
+        int numx = xendNum - xstartNum;
+
+        double xstart = ROOT_ULLON + xstartNum * xLengthPerPixel;
+        double xend = ROOT_ULLON + xendNum * xLengthPerPixel;
+
+        // ystart: calculate the downmost latitude
+        int ylownum = (int) Math.floor((lrlat - ROOT_LRLAT) / yLengthPerPixel);
+        int yuppernum = (int) Math.ceil((ullat - ROOT_LRLAT) / yLengthPerPixel);
+        int numy = yuppernum - ylownum;
+
+        double ystart = ROOT_LRLAT + ylownum * yLengthPerPixel;
+        double yend = ROOT_LRLAT + yuppernum * yLengthPerPixel;
+
         Map<String, Object> results = new HashMap<>();
-        System.out.println("Since you haven't implemented getMapRaster, nothing is displayed in "
-                           + "your browser.");
+        results.put("raster_ul_lon", xstart);
+        results.put("raster_lr_lat", ystart);
+
+        results.put("raster_lr_lon", xend);
+        results.put("raster_ul_lat", yend);
+
+        results.put("depth", bestIndex);
+
+        String[][] renderGrid = new String[numy][numx];
+        for (int i = 0; i < numy; i++) {
+            for (int j = 0; j < numx; j++) {
+                renderGrid[i][j] = "d" + bestIndex + "_x" + (xstartNum + j)
+                        + "_y" + (lengthPixel - yuppernum + i) + ".png";
+            }
+        }
+        results.put("render_grid", renderGrid);
+        results.put("query_success", checkQuery(params));
         return results;
     }
 
+    private boolean checkQuery(Map<String, Double> params) {
+        double lrlon = params.get("lrlon");
+        double ullon = params.get("ullon");
+
+        double ullat = params.get("ullat");
+        double lrlat = params.get("lrlat");
+
+        if (lrlon < ullon || ullat < lrlat) {
+            return false;
+        }
+
+        if (ullon < ROOT_ULLON || lrlon > ROOT_LRLON
+                || ullat > ROOT_ULLAT || lrlat < ROOT_LRLAT) {
+            return false;
+        }
+        return true;
+    }
 }

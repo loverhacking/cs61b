@@ -1,3 +1,4 @@
+import org.junit.Before;
 import org.xml.sax.SAXException;
 
 import java.io.File;
@@ -6,7 +7,7 @@ import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  * Graph for storing all of the intersection (vertex) and road (edge) information.
@@ -20,6 +21,40 @@ import java.util.ArrayList;
 public class GraphDB {
     /** Your instance variables for storing the graph. You should consider
      * creating helper classes, e.g. Node, Edge, etc. */
+    public HashMap<Long, Node> nodes = new HashMap<>();
+    private HashSet<Edge> edges = new HashSet<>();
+
+
+    static class Node {
+        double lon;
+        double lat;
+        HashSet<Long> neighbors;
+
+        Node(String lon, String lat) {
+            this.lon = Double.parseDouble(lon);
+            this.lat = Double.parseDouble(lat);
+            neighbors = new HashSet<>();
+        }
+
+    }
+
+    static class Edge {
+        private long fromId;
+        private long toId;
+
+        Edge(String fromId, String toID) {
+            this.fromId = Long.parseLong(fromId);
+            this.toId = Long.parseLong(toID);
+        }
+    }
+
+    void addNode(Long id, Node node) {
+        nodes.put(id, node);
+    }
+
+    void addEdge(Edge edge) {
+        edges.add(edge);
+    }
 
     /**
      * Example constructor shows how to create and start an XML parser.
@@ -58,6 +93,14 @@ public class GraphDB {
      */
     private void clean() {
         // TODO: Your code here.
+        HashMap<Long, Node> newNodes = new HashMap<>();
+        for (Long id : nodes.keySet()) {
+            Node node = nodes.get(id);
+            if (!node.neighbors.isEmpty()) {
+                newNodes.put(id, node);
+            }
+        }
+        nodes = newNodes;
     }
 
     /**
@@ -66,7 +109,7 @@ public class GraphDB {
      */
     Iterable<Long> vertices() {
         //YOUR CODE HERE, this currently returns only an empty list.
-        return new ArrayList<Long>();
+        return nodes.keySet();
     }
 
     /**
@@ -75,7 +118,7 @@ public class GraphDB {
      * @return An iterable of the ids of the neighbors of v.
      */
     Iterable<Long> adjacent(long v) {
-        return null;
+        return nodes.get(v).neighbors;
     }
 
     /**
@@ -136,7 +179,18 @@ public class GraphDB {
      * @return The id of the node in the graph closest to the target.
      */
     long closest(double lon, double lat) {
-        return 0;
+        Set<Long> allNodes = (Set<Long>) vertices();
+
+        double bestDistance = Double.MAX_VALUE;
+        long bestId = 0;
+        for (Long id : allNodes) {
+            double distance = distance(lon, lat, lon(id), lat(id));
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                bestId = id;
+            }
+        }
+        return bestId;
     }
 
     /**
@@ -145,7 +199,7 @@ public class GraphDB {
      * @return The longitude of the vertex.
      */
     double lon(long v) {
-        return 0;
+        return nodes.get(v).lon;
     }
 
     /**
@@ -154,6 +208,18 @@ public class GraphDB {
      * @return The latitude of the vertex.
      */
     double lat(long v) {
-        return 0;
+        return nodes.get(v).lat;
+    }
+
+    public static void main(String[] args) {
+
+        String OSM_DB_PATH_TINY =
+                "../library-sp18/data/tiny-clean.osm.xml";
+
+        GraphDB graphTiny = new GraphDB(OSM_DB_PATH_TINY);
+
+        Iterable<Long> ids = graphTiny.vertices();
+
+
     }
 }

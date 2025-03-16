@@ -2,9 +2,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  *  Parses OSM XML files using an XML SAX parser. Used to construct the graph of roads for
@@ -39,6 +37,9 @@ public class GraphBuildingHandler extends DefaultHandler {
     private String activeState = "";
     private final GraphDB g;
 
+    private boolean isValidEdge;
+    private LinkedList<String> nodes;
+
     /**
      * Create a new GraphBuildingHandler.
      * @param g The graph to populate with the XML data.
@@ -65,6 +66,8 @@ public class GraphBuildingHandler extends DefaultHandler {
     public void startElement(String uri, String localName, String qName, Attributes attributes)
             throws SAXException {
         /* Some example code on how you might begin to parse XML files. */
+
+
         if (qName.equals("node")) {
             /* We encountered a new <node...> tag. */
             activeState = "node";
@@ -74,10 +77,17 @@ public class GraphBuildingHandler extends DefaultHandler {
 
             /* TODO Use the above information to save a "node" to somewhere. */
             /* Hint: A graph-like structure would be nice. */
+            GraphDB.Node node = new GraphDB.Node(attributes.getValue("lon"),
+                    attributes.getValue("lat"));
+
+            g.addNode(Long.parseLong(attributes.getValue("id")), node);
+
 
         } else if (qName.equals("way")) {
             /* We encountered a new <way...> tag. */
             activeState = "way";
+            nodes = new LinkedList<>();
+            isValidEdge = false;
 //            System.out.println("Beginning a way...");
         } else if (activeState.equals("way") && qName.equals("nd")) {
             /* While looking at a way, we found a <nd...> tag. */
@@ -89,6 +99,7 @@ public class GraphBuildingHandler extends DefaultHandler {
             cumbersome since you might have to remove the connections if you later see a tag that
             makes this way invalid. Instead, think of keeping a list of possible connections and
             remember whether this way is valid or not. */
+            nodes.add(attributes.getValue("ref"));
 
         } else if (activeState.equals("way") && qName.equals("tag")) {
             /* While looking at a way, we found a <tag...> tag. */
@@ -100,6 +111,10 @@ public class GraphBuildingHandler extends DefaultHandler {
             } else if (k.equals("highway")) {
                 //System.out.println("Highway type: " + v);
                 /* TODO Figure out whether this way and its connections are valid. */
+                if (ALLOWED_HIGHWAY_TYPES.contains(v)) {
+                    isValidEdge = true;
+                }
+
                 /* Hint: Setting a "flag" is good enough! */
             } else if (k.equals("name")) {
                 //System.out.println("Way Name: " + v);
@@ -129,11 +144,32 @@ public class GraphBuildingHandler extends DefaultHandler {
      */
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
+
         if (qName.equals("way")) {
             /* We are done looking at a way. (We finished looking at the nodes, speeds, etc...)*/
             /* Hint1: If you have stored the possible connections for this way, here's your
             chance to actually connect the nodes together if the way is valid. */
 //            System.out.println("Finishing a way...");
+            //System.out.println(isValidEdge);
+            if (isValidEdge) {
+                getEgdes(nodes);
+            }
+        }
+    }
+
+    private void getEgdes(LinkedList<String> nodes) {
+        HashMap<Long, GraphDB.Node> temp = g.nodes;
+        while (nodes.size() > 1) {
+            String from = nodes.removeFirst();
+            String to = nodes.getFirst();
+            Long fromId = Long.parseLong(from);
+            Long toId = Long.parseLong(to);
+
+            temp.get(fromId).neighbors.add(toId);
+            temp.get(toId).neighbors.add(fromId);
+
+            GraphDB.Edge edge = new GraphDB.Edge(from, to);
+            g.addEdge(edge);
         }
     }
 
