@@ -37,6 +37,9 @@ public class GraphBuildingHandler extends DefaultHandler {
     private String activeState = "";
     private final GraphDB g;
 
+    private long lastNodeId;
+    private String lastWayName;
+    private String lastWayMaxSpeed;
     private boolean isValidEdge;
     private LinkedList<String> nodes;
 
@@ -80,6 +83,7 @@ public class GraphBuildingHandler extends DefaultHandler {
             GraphDB.Node node = new GraphDB.Node(attributes.getValue("lon"),
                     attributes.getValue("lat"));
 
+            lastNodeId = Long.parseLong(attributes.getValue("id"));
             g.addNode(Long.parseLong(attributes.getValue("id")), node);
 
 
@@ -88,6 +92,8 @@ public class GraphBuildingHandler extends DefaultHandler {
             activeState = "way";
             nodes = new LinkedList<>();
             isValidEdge = false;
+            lastWayName = null;
+            lastWayMaxSpeed = null;
 //            System.out.println("Beginning a way...");
         } else if (activeState.equals("way") && qName.equals("nd")) {
             /* While looking at a way, we found a <nd...> tag. */
@@ -108,6 +114,8 @@ public class GraphBuildingHandler extends DefaultHandler {
             if (k.equals("maxspeed")) {
                 //System.out.println("Max Speed: " + v);
                 /* TODO set the max speed of the "current way" here. */
+                lastWayMaxSpeed = v;
+
             } else if (k.equals("highway")) {
                 //System.out.println("Highway type: " + v);
                 /* TODO Figure out whether this way and its connections are valid. */
@@ -118,6 +126,7 @@ public class GraphBuildingHandler extends DefaultHandler {
                 /* Hint: Setting a "flag" is good enough! */
             } else if (k.equals("name")) {
                 //System.out.println("Way Name: " + v);
+                lastWayName = v;
             }
 //            System.out.println("Tag with k=" + k + ", v=" + v + ".");
         } else if (activeState.equals("node") && qName.equals("tag") && attributes.getValue("k")
@@ -128,6 +137,9 @@ public class GraphBuildingHandler extends DefaultHandler {
             node this tag belongs to. Remember XML is parsed top-to-bottom, so probably it's the
             last node that you looked at (check the first if-case). */
 //            System.out.println("Node's name: " + attributes.getValue("v"));
+            String locName = attributes.getValue("v");
+            g.t.add(locName);
+            g.nodes.get(lastNodeId).name = locName;
         }
     }
 
@@ -152,24 +164,46 @@ public class GraphBuildingHandler extends DefaultHandler {
 //            System.out.println("Finishing a way...");
             //System.out.println(isValidEdge);
             if (isValidEdge) {
-                getEgdes(nodes);
+                getEgdes();
             }
         }
     }
 
-    private void getEgdes(LinkedList<String> nodes) {
+    private void getEgdes() {
         HashMap<Long, GraphDB.Node> temp = g.nodes;
+
+        for (String node : nodes) {
+            makeConnectinos(node);
+        }
+
+        // record neighbors
         while (nodes.size() > 1) {
             String from = nodes.removeFirst();
             String to = nodes.getFirst();
-            Long fromId = Long.parseLong(from);
-            Long toId = Long.parseLong(to);
+            long fromId = Long.parseLong(from);
+            long toId = Long.parseLong(to);
 
             temp.get(fromId).neighbors.add(toId);
             temp.get(toId).neighbors.add(fromId);
 
-            GraphDB.Edge edge = new GraphDB.Edge(from, to);
-            g.addEdge(edge);
+        }
+    }
+
+    private void makeConnectinos(String node) {
+        for (String n : nodes) {
+            if (!n.equals(node)) {
+                long fromId = Long.parseLong(node);
+                long toId = Long.parseLong(n);
+
+                GraphDB.Edge edge = new GraphDB.Edge(fromId, toId);
+                if (lastWayName == null) {
+                    lastWayName = "unknown road";
+                }
+                if (lastWayMaxSpeed != null) {
+                    edge.maxSpeed = lastWayMaxSpeed;
+                }
+                g.addEdge(edge, lastWayName);
+            }
         }
     }
 

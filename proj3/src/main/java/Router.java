@@ -1,13 +1,7 @@
 
-import java.util.List;
-import java.util.PriorityQueue;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.LinkedList;
-import java.util.Comparator;
+import java.util.*;
 
 
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -144,7 +138,90 @@ public class Router {
      * route.
      */
     public static List<NavigationDirection> routeDirections(GraphDB g, List<Long> route) {
-        return null; // FIXME
+
+        List<NavigationDirection> directions = new ArrayList<>();
+
+        Long first= route.get(0);
+        String firstName = g.edges.get(new GraphDB.Edge(first, route.get(1)));
+        String preName = firstName;
+        double totalDist = 0.0;
+
+        /** a flag signs is whether the first way */
+        boolean isStart = true;
+
+        NavigationDirection nd = new NavigationDirection();
+        nd.way = firstName;
+        nd.direction = 0;
+
+        for (int i = 0; i < route.size(); i++) {
+
+            if (i == 0) {
+                continue;
+            }
+            String curName = g.edges.get(new GraphDB.Edge(route.get(i - 1), route.get(i)));
+            double dist = g.distance(route.get(i - 1), route.get(i));
+
+            // a change in way
+            if (!curName.equals(preName)) {
+
+                if (isStart) {
+                    isStart = false;
+                }
+
+                // pre way
+                nd.way = preName.equals("unknown road") ? "": preName;
+                nd.distance = totalDist;
+                directions.add(nd);
+
+                // next way
+                nd = new NavigationDirection();
+                nd.way = preName.equals("unknown road") ? "": curName;
+
+                double pre = g.bearing(route.get(i - 2), route.get(i - 1));
+                double cur = g.bearing(route.get(i - 1), route.get(i));
+                nd.direction = calDirection(pre, cur);
+
+                totalDist = dist;
+                preName = curName;
+            } else {
+                totalDist += dist;
+            }
+
+            if (i == route.size() - 1) {
+                nd.distance = totalDist;
+                directions.add(nd);
+            }
+
+        }
+        return directions;
+    }
+
+    private static int calDirection(double pre, double cur) {
+
+        double relartiveBear = cur - pre;
+
+
+        if (relartiveBear < -180) {
+            relartiveBear += 360;
+        } else if (relartiveBear > 180) {
+            relartiveBear -= 360;
+        }
+
+        if (relartiveBear > -15 && relartiveBear < 15) {
+            return 1;
+        } else if (relartiveBear > -30 && relartiveBear < -15) {
+            return 2;
+        } else if (relartiveBear > 15 && relartiveBear < 30) {
+            return 3;
+        } else if (relartiveBear > 30 && relartiveBear < 100) {
+            return 4;
+        } else if (relartiveBear > -100 && relartiveBear < -30) {
+            return 5;
+        } else if (relartiveBear < -100) {
+            return 6;
+        } else {
+            return 7;
+        }
     }
 
 
@@ -267,6 +344,5 @@ public class Router {
             return Objects.hash(direction, way, distance);
         }
     }
-
 
 }

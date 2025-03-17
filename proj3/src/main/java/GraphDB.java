@@ -1,4 +1,5 @@
 import org.junit.Before;
+import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import java.io.File;
@@ -21,13 +22,18 @@ import java.util.*;
 public class GraphDB {
     /** Your instance variables for storing the graph. You should consider
      * creating helper classes, e.g. Node, Edge, etc. */
-    public HashMap<Long, Node> nodes = new HashMap<>();
-    private HashSet<Edge> edges = new HashSet<>();
+    HashMap<Long, Node> nodes = new HashMap<>();
+    HashMap<Edge, String> edges = new HashMap<>();
+
+    Trie t = new Trie();
+
+
 
 
     static class Node {
         double lon;
         double lat;
+        String name;
         HashSet<Long> neighbors;
 
         Node(String lon, String lat) {
@@ -39,12 +45,27 @@ public class GraphDB {
     }
 
     static class Edge {
-        private long fromId;
-        private long toId;
+        long fromId;
+        long toId;
+        String maxSpeed;
 
-        Edge(String fromId, String toID) {
-            this.fromId = Long.parseLong(fromId);
-            this.toId = Long.parseLong(toID);
+        Edge(Long fromId, Long toId) {
+            this.fromId = fromId;
+            this.toId = toId;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Edge edge = (Edge) o;
+            return fromId == edge.fromId && toId == edge.toId;
+
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(fromId, toId);
         }
     }
 
@@ -52,8 +73,8 @@ public class GraphDB {
         nodes.put(id, node);
     }
 
-    void addEdge(Edge edge) {
-        edges.add(edge);
+    void addEdge(Edge edge, String name) {
+        edges.put(edge, name);
     }
 
     /**
@@ -211,15 +232,4 @@ public class GraphDB {
         return nodes.get(v).lat;
     }
 
-    public static void main(String[] args) {
-
-        String OSM_DB_PATH_TINY =
-                "../library-sp18/data/tiny-clean.osm.xml";
-
-        GraphDB graphTiny = new GraphDB(OSM_DB_PATH_TINY);
-
-        Iterable<Long> ids = graphTiny.vertices();
-
-
-    }
 }
