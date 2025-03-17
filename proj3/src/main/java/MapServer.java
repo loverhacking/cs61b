@@ -286,7 +286,7 @@ public class MapServer {
      */
     public static List<String> getLocationsByPrefix(String prefix) {
 
-        return new LinkedList<>();
+        return graph.t.getAllWordsWithPrefix(prefix);
     }
 
     /**
