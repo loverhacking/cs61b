@@ -27,12 +27,10 @@ public class GraphDB {
 
     Trie t = new Trie();
 
-
-
-
     static class Node {
         double lon;
         double lat;
+        long id;
         String name;
         HashSet<Long> neighbors;
 
@@ -237,6 +235,9 @@ public class GraphDB {
     }
 
     public List<Map<String, Object>> getLocations(String locationName) {
+        HashMap<String, Node> map = new HashMap<>();
+
+
         return new LinkedList<>();
     }
 

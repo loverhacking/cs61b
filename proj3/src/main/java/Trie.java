@@ -5,9 +5,11 @@ import java.util.Map;
 
 public class Trie {
     private TrieNode root;
+    private String matchPrefex;
 
     public Trie() {
         root = new TrieNode();
+        matchPrefex = "";
     }
 
     /** inset word into Trie */
@@ -38,7 +40,7 @@ public class Trie {
         List<String> results = new ArrayList<>();
         TrieNode node = searchPrefix(prefix);
         if (node != null) {
-            collectWords(node, prefix, results);
+            collectWords(node, matchPrefex, results);
         }
         return results;
     }
@@ -59,10 +61,22 @@ public class Trie {
     private TrieNode searchPrefix(String prefix) {
         TrieNode node = root;
         for (char ch : prefix.toCharArray()) {
-            if (!node.containsKey(ch)) {
+            if (!node.containsKey(ch)
+                    && !node.containsKey(Character.toUpperCase(ch))) {
                 return null;
             }
-            node = node.get(ch);
+            StringBuilder s = new StringBuilder();
+            s.append(matchPrefex);
+
+            if (node.containsKey(Character.toUpperCase(ch))) {
+                node = node.get(Character.toUpperCase(ch));
+                s.append(Character.toUpperCase(ch));
+            } else {
+                node = node.get(ch);
+                s.append(ch);
+            }
+            matchPrefex = s.toString();
+
         }
         return node;
     }
@@ -100,10 +114,10 @@ public class Trie {
 
     public static void main(String[] args) {
         Trie trie = new Trie();
-        trie.add("app");
-        trie.add("apple");
-        trie.add("applica tion");
-        trie.add("apply");
+        trie.add("App");
+        trie.add("Apple");
+        trie.add("Applica tion");
+        trie.add("Apply");
         System.out.println(trie.getAllWordsWithPrefix("app"));
     }
 }

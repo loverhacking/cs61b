@@ -82,7 +82,7 @@ public class GraphBuildingHandler extends DefaultHandler {
             /* Hint: A graph-like structure would be nice. */
             GraphDB.Node node = new GraphDB.Node(attributes.getValue("lon"),
                     attributes.getValue("lat"));
-
+            node.id = Long.parseLong(attributes.getValue("id"));
             lastNodeId = Long.parseLong(attributes.getValue("id"));
             g.addNode(Long.parseLong(attributes.getValue("id")), node);
 
