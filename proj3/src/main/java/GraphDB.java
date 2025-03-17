@@ -25,7 +25,7 @@ public class GraphDB {
     HashMap<Long, Node> nodes = new HashMap<>();
     HashMap<Edge, String> edges = new HashMap<>();
 
-    HashMap<String, String> locations = new HashMap<>();
+    HashMap<String, HashSet<String>> locations = new HashMap<>();
 
     Trie t = new Trie();
 
@@ -234,18 +234,31 @@ public class GraphDB {
 
     public List<String> getLocationsByPrefix(String prefix) {
         List<String> result = new ArrayList<>();
-        List<String> temp = t.getAllWordsWithPrefix(prefix);
-        for (String word : temp) {
-            result.add(locations.get(word));
+        List<String> oResult = t.getAllWordsWithPrefix(prefix);
+        for (String word : oResult) {
+            HashSet<String> t = locations.get(word);
+            result.addAll(t);
+
         }
+
         return result;
     }
+
+
 
     public List<Map<String, Object>> getLocations(String locationName) {
         HashMap<String, Node> map = new HashMap<>();
 
 
         return new LinkedList<>();
+    }
+
+    public static void main (String[] args) {
+        String OSM_DB_PATH = "../library-sp18/data/berkeley-2018.osm.xml";
+        GraphDB g = new GraphDB(OSM_DB_PATH);
+
+        System.out.println(g.getLocationsByPrefix("p"));
+
     }
 
 }

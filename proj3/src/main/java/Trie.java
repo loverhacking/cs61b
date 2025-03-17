@@ -100,10 +100,10 @@ public class Trie {
 
     public static void main(String[] args) {
         Trie trie = new Trie();
-        trie.add("App");
-        trie.add("Apple");
-        trie.add("Applica tion");
-        trie.add("Apply");
+        trie.add("app");
+        trie.add("apple");
+        trie.add("applica tion");
+        trie.add("apply");
         System.out.println(trie.getAllWordsWithPrefix("app"));
     }
 }

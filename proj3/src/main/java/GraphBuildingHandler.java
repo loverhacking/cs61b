@@ -139,7 +139,16 @@ public class GraphBuildingHandler extends DefaultHandler {
 //            System.out.println("Node's name: " + attributes.getValue("v"));
             String locName = attributes.getValue("v");
             String clearName = GraphDB.cleanString(locName);
-            g.locations.put(clearName, locName);
+
+            // deal duplicates match with clean word and origin word
+            if (g.locations.containsKey(clearName)) {
+                g.locations.get(clearName).add(locName);
+            } else {
+                HashSet<String> temp = new HashSet<>();
+                temp.add(locName);
+                g.locations.put(clearName, temp);
+            }
+
             g.t.add(clearName);
             g.nodes.get(lastNodeId).name = locName;
         }
