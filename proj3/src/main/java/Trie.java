@@ -5,11 +5,9 @@ import java.util.Map;
 
 public class Trie {
     private TrieNode root;
-    private String matchPrefex;
 
     public Trie() {
         root = new TrieNode();
-        matchPrefex = "";
     }
 
     /** inset word into Trie */
@@ -40,7 +38,7 @@ public class Trie {
         List<String> results = new ArrayList<>();
         TrieNode node = searchPrefix(prefix);
         if (node != null) {
-            collectWords(node, matchPrefex, results);
+            collectWords(node, prefix, results);
         }
         return results;
     }
@@ -61,22 +59,10 @@ public class Trie {
     private TrieNode searchPrefix(String prefix) {
         TrieNode node = root;
         for (char ch : prefix.toCharArray()) {
-            if (!node.containsKey(ch)
-                    && !node.containsKey(Character.toUpperCase(ch))) {
+            if (!node.containsKey(ch)) {
                 return null;
             }
-            StringBuilder s = new StringBuilder();
-            s.append(matchPrefex);
-
-            if (node.containsKey(Character.toUpperCase(ch))) {
-                node = node.get(Character.toUpperCase(ch));
-                s.append(Character.toUpperCase(ch));
-            } else {
-                node = node.get(ch);
-                s.append(ch);
-            }
-            matchPrefex = s.toString();
-
+            node = node.get(ch);
         }
         return node;
     }

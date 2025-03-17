@@ -138,7 +138,9 @@ public class GraphBuildingHandler extends DefaultHandler {
             last node that you looked at (check the first if-case). */
 //            System.out.println("Node's name: " + attributes.getValue("v"));
             String locName = attributes.getValue("v");
-            g.t.add(locName);
+            String clearName = GraphDB.cleanString(locName);
+            g.locations.put(clearName, locName);
+            g.t.add(clearName);
             g.nodes.get(lastNodeId).name = locName;
         }
     }

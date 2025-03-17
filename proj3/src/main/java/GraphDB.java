@@ -25,6 +25,8 @@ public class GraphDB {
     HashMap<Long, Node> nodes = new HashMap<>();
     HashMap<Edge, String> edges = new HashMap<>();
 
+    HashMap<String, String> locations = new HashMap<>();
+
     Trie t = new Trie();
 
     static class Node {
@@ -231,7 +233,12 @@ public class GraphDB {
     }
 
     public List<String> getLocationsByPrefix(String prefix) {
-        return t.getAllWordsWithPrefix(prefix);
+        List<String> result = new ArrayList<>();
+        List<String> temp = t.getAllWordsWithPrefix(prefix);
+        for (String word : temp) {
+            result.add(locations.get(word));
+        }
+        return result;
     }
 
     public List<Map<String, Object>> getLocations(String locationName) {
