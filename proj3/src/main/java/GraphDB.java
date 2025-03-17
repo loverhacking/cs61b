@@ -232,4 +232,12 @@ public class GraphDB {
         return nodes.get(v).lat;
     }
 
+    public List<String> getLocationsByPrefix(String prefix) {
+        return t.getAllWordsWithPrefix(prefix);
+    }
+
+    public List<Map<String, Object>> getLocations(String locationName) {
+        return new LinkedList<>();
+    }
+
 }
