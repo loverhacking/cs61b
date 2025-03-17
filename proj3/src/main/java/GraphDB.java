@@ -238,20 +238,38 @@ public class GraphDB {
         for (String word : oResult) {
             HashSet<String> t = locations.get(word);
             result.addAll(t);
-
         }
-
         return result;
     }
 
 
 
     public List<Map<String, Object>> getLocations(String locationName) {
-        HashMap<String, Node> map = new HashMap<>();
 
+        HashMap<String, HashMap<String, Object>> map = new HashMap<>();
 
-        return new LinkedList<>();
+        // collect all name
+        HashSet<String> existName = new HashSet<>();
+        String location = cleanString(locationName);
+        for (Node node : nodes.values()) {
+            String cleanName = cleanString(node.name);
+            if (cleanName.equals(location)) {
+                existName.add(node.name);
+            }
+        }
+
+        for (String name : existName) {
+            map.put(name, new HashMap<>());
+        }
+
+        for (Node node : nodes.values()) {
+            map.get(node.name).put(node.name, node);
+        }
+
+        return new ArrayList<>(map.values());
     }
+
+
 
     public static void main (String[] args) {
         String OSM_DB_PATH = "../library-sp18/data/berkeley-2018.osm.xml";
