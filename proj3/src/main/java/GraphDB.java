@@ -260,7 +260,10 @@ public class GraphDB {
     private void addMap(List<Map<String, Object>> result, HashSet<Node> set) {
         for (Node node : set) {
             Map<String, Object> map = new HashMap<>();
-            map.put(node.name, node);
+            map.put("id", node.id);
+            map.put("lon", node.lon);
+            map.put("lat", node.lat);
+            map.put("name", node.name);
             result.add(map);
         }
     }
