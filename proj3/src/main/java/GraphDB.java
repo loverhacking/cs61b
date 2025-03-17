@@ -1,5 +1,3 @@
-import org.junit.Before;
-import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import java.io.File;
@@ -23,9 +21,13 @@ public class GraphDB {
     /** Your instance variables for storing the graph. You should consider
      * creating helper classes, e.g. Node, Edge, etc. */
     HashMap<Long, Node> nodes = new HashMap<>();
+
     HashMap<Edge, String> edges = new HashMap<>();
 
+    // map clean name to origin name
     HashMap<String, HashSet<String>> locations = new HashMap<>();
+
+    HashMap<String, HashSet<Node>> allLocation = new HashMap<>();
 
     Trie t = new Trie();
 
@@ -36,9 +38,9 @@ public class GraphDB {
         String name;
         HashSet<Long> neighbors;
 
-        Node(String lon, String lat) {
-            this.lon = Double.parseDouble(lon);
-            this.lat = Double.parseDouble(lat);
+        Node(double lon, double lat) {
+            this.lon = lon;
+            this.lat = lat;
             neighbors = new HashSet<>();
         }
 
@@ -245,28 +247,22 @@ public class GraphDB {
 
 
     public List<Map<String, Object>> getLocations(String locationName) {
-
-        HashMap<String, HashMap<String, Object>> map = new HashMap<>();
-
-        // collect all name
-        HashSet<String> existName = new HashSet<>();
-        String location = cleanString(locationName);
-        for (Node node : nodes.values()) {
-            String cleanName = cleanString(node.name);
-            if (cleanName.equals(location)) {
-                existName.add(node.name);
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (String s : allLocation.keySet()) {
+            if (cleanString(s).equals(locationName)) {
+                addMap(result, allLocation.get(s));
             }
         }
+        return result;
 
-        for (String name : existName) {
-            map.put(name, new HashMap<>());
+    }
+
+    private void addMap(List<Map<String, Object>> result, HashSet<Node> set) {
+        for (Node node : set) {
+            Map<String, Object> map = new HashMap<>();
+            map.put(node.name, node);
+            result.add(map);
         }
-
-        for (Node node : nodes.values()) {
-            map.get(node.name).put(node.name, node);
-        }
-
-        return new ArrayList<>(map.values());
     }
 
 
@@ -275,7 +271,20 @@ public class GraphDB {
         String OSM_DB_PATH = "../library-sp18/data/berkeley-2018.osm.xml";
         GraphDB g = new GraphDB(OSM_DB_PATH);
 
-        System.out.println(g.getLocationsByPrefix("p"));
+        System.out.println(g.getLocations("alcatraz  telegraph"));
+
+//        for (Node node: g.nodes.values()) {
+//            if (node.name != null && node.name.equals("Alcatraz & Telegraph")) {
+//                System.out.println(node.name);
+//            }
+//
+//        }
+
+//        for (Node node : g.nodes.values()) {
+//            if (node.name != null) {
+//                System.out.println(node.name);
+//            }
+//        }
 
     }
 

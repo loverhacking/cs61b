@@ -80,11 +80,11 @@ public class GraphBuildingHandler extends DefaultHandler {
 
             /* TODO Use the above information to save a "node" to somewhere. */
             /* Hint: A graph-like structure would be nice. */
-            GraphDB.Node node = new GraphDB.Node(attributes.getValue("lon"),
-                    attributes.getValue("lat"));
+            GraphDB.Node node = new GraphDB.Node(Double.parseDouble(attributes.getValue("lon")),
+                    Double.parseDouble(attributes.getValue("lat")));
             node.id = Long.parseLong(attributes.getValue("id"));
-            lastNodeId = Long.parseLong(attributes.getValue("id"));
-            g.addNode(Long.parseLong(attributes.getValue("id")), node);
+            lastNodeId = node.id;
+            g.addNode(node.id, node);
 
 
         } else if (qName.equals("way")) {
@@ -140,6 +140,7 @@ public class GraphBuildingHandler extends DefaultHandler {
             String locName = attributes.getValue("v");
             String clearName = GraphDB.cleanString(locName);
 
+
             // deal duplicates match with clean word and origin word
             if (g.locations.containsKey(clearName)) {
                 g.locations.get(clearName).add(locName);
@@ -151,6 +152,19 @@ public class GraphBuildingHandler extends DefaultHandler {
 
             g.t.add(clearName);
             g.nodes.get(lastNodeId).name = locName;
+
+            // create location
+            GraphDB.Node n = new GraphDB.Node(g.lon(lastNodeId), g.lat(lastNodeId));
+            n.name = locName;
+            n.id = lastNodeId;
+            if (g.allLocation.containsKey(locName)) {
+
+                g.allLocation.get(locName).add(n);
+            } else {
+                HashSet<GraphDB.Node> newSet = new HashSet<>();
+                newSet.add(n);
+                g.allLocation.put(locName, newSet);
+            }
         }
     }
 
