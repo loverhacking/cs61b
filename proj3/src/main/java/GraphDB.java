@@ -270,25 +270,12 @@ public class GraphDB {
 
 
 
-    public static void main (String[] args) {
-        String OSM_DB_PATH = "../library-sp18/data/berkeley-2018.osm.xml";
-        GraphDB g = new GraphDB(OSM_DB_PATH);
-
-        System.out.println(g.getLocations("alcatraz  telegraph"));
-
-//        for (Node node: g.nodes.values()) {
-//            if (node.name != null && node.name.equals("Alcatraz & Telegraph")) {
-//                System.out.println(node.name);
-//            }
+//    public static void main (String[] args) {
+//        String OSM_DB_PATH = "../library-sp18/data/berkeley-2018.osm.xml";
+//        GraphDB g = new GraphDB(OSM_DB_PATH);
 //
-//        }
-
-//        for (Node node : g.nodes.values()) {
-//            if (node.name != null) {
-//                System.out.println(node.name);
-//            }
-//        }
-
-    }
+//        System.out.println(g.getLocations("alcatraz  telegraph"));
+//
+//    }
 
 }

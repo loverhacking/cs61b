@@ -38,6 +38,7 @@ public class GraphBuildingHandler extends DefaultHandler {
     private final GraphDB g;
 
     private long lastNodeId;
+    private GraphDB.Node lastNode;
     private String lastWayName;
     private String lastWayMaxSpeed;
     private boolean isValidEdge;
@@ -83,6 +84,7 @@ public class GraphBuildingHandler extends DefaultHandler {
             GraphDB.Node node = new GraphDB.Node(Double.parseDouble(attributes.getValue("lon")),
                     Double.parseDouble(attributes.getValue("lat")));
             node.id = Long.parseLong(attributes.getValue("id"));
+            lastNode = node;
             lastNodeId = node.id;
             g.addNode(node.id, node);
 
@@ -154,11 +156,10 @@ public class GraphBuildingHandler extends DefaultHandler {
             g.nodes.get(lastNodeId).name = locName;
 
             // create location
-            GraphDB.Node n = new GraphDB.Node(g.lon(lastNodeId), g.lat(lastNodeId));
+            GraphDB.Node n = new GraphDB.Node(lastNode.lon, lastNode.lat);
             n.name = locName;
             n.id = lastNodeId;
             if (g.allLocation.containsKey(locName)) {
-
                 g.allLocation.get(locName).add(n);
             } else {
                 HashSet<GraphDB.Node> newSet = new HashSet<>();
