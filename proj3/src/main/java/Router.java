@@ -1,7 +1,11 @@
-
-import java.util.*;
-
-
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+import java.util.PriorityQueue;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -141,7 +145,7 @@ public class Router {
 
         List<NavigationDirection> directions = new ArrayList<>();
 
-        Long first= route.get(0);
+        Long first = route.get(0);
         String firstName = g.edges.get(new GraphDB.Edge(first, route.get(1)));
         String preName = firstName;
         double totalDist = 0.0;
@@ -169,13 +173,13 @@ public class Router {
                 }
 
                 // pre way
-                nd.way = preName.equals("unknown road") ? "": preName;
+                nd.way = preName.equals("unknown road") ? "" : preName;
                 nd.distance = totalDist;
                 directions.add(nd);
 
                 // next way
                 nd = new NavigationDirection();
-                nd.way = preName.equals("unknown road") ? "": curName;
+                nd.way = preName.equals("unknown road") ? "" : curName;
 
                 double pre = g.bearing(route.get(i - 2), route.get(i - 1));
                 double cur = g.bearing(route.get(i - 1), route.get(i));

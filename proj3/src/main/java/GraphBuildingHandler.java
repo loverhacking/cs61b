@@ -79,7 +79,6 @@ public class GraphBuildingHandler extends DefaultHandler {
 //            System.out.println("Node lon: " + attributes.getValue("lon"));
 //            System.out.println("Node lat: " + attributes.getValue("lat"));
 
-            /* TODO Use the above information to save a "node" to somewhere. */
             /* Hint: A graph-like structure would be nice. */
             GraphDB.Node node = new GraphDB.Node(Double.parseDouble(attributes.getValue("lon")),
                     Double.parseDouble(attributes.getValue("lat")));
@@ -101,7 +100,6 @@ public class GraphBuildingHandler extends DefaultHandler {
             /* While looking at a way, we found a <nd...> tag. */
             //System.out.println("Id of a node in this way: " + attributes.getValue("ref"));
 
-            /* TODO Use the above id to make "possible" connections between the nodes in this way */
             /* Hint1: It would be useful to remember what was the last node in this way. */
             /* Hint2: Not all ways are valid. So, directly connecting the nodes here would be
             cumbersome since you might have to remove the connections if you later see a tag that
@@ -115,12 +113,10 @@ public class GraphBuildingHandler extends DefaultHandler {
             String v = attributes.getValue("v");
             if (k.equals("maxspeed")) {
                 //System.out.println("Max Speed: " + v);
-                /* TODO set the max speed of the "current way" here. */
                 lastWayMaxSpeed = v;
 
             } else if (k.equals("highway")) {
                 //System.out.println("Highway type: " + v);
-                /* TODO Figure out whether this way and its connections are valid. */
                 if (ALLOWED_HIGHWAY_TYPES.contains(v)) {
                     isValidEdge = true;
                 }
@@ -134,49 +130,43 @@ public class GraphBuildingHandler extends DefaultHandler {
         } else if (activeState.equals("node") && qName.equals("tag") && attributes.getValue("k")
                 .equals("name")) {
             /* While looking at a node, we found a <tag...> with k="name". */
-            /* TODO Create a location. */
+
             /* Hint: Since we found this <tag...> INSIDE a node, we should probably remember which
             node this tag belongs to. Remember XML is parsed top-to-bottom, so probably it's the
             last node that you looked at (check the first if-case). */
 //            System.out.println("Node's name: " + attributes.getValue("v"));
-            String locName = attributes.getValue("v");
-            String clearName = GraphDB.cleanString(locName);
+            String originName = attributes.getValue("v");
+            String clearName = GraphDB.cleanString(originName);
 
 
-            // deal duplicates match with clean word and origin word
+            // create mapping between clean word with all possible origin word
             if (g.locations.containsKey(clearName)) {
-                g.locations.get(clearName).add(locName);
+                g.locations.get(clearName).add(originName);
             } else {
                 HashSet<String> temp = new HashSet<>();
-                temp.add(locName);
+                temp.add(originName);
                 g.locations.put(clearName, temp);
             }
 
+            // add clearName to Trie
             g.t.add(clearName);
-            g.nodes.get(lastNodeId).name = locName;
+
+            g.nodes.get(lastNodeId).name = originName;
 
 
-
-            // create location
-            if (g.cleanMap.containsKey(clearName)) {
-                g.cleanMap.get(clearName).add(locName);
-            } else {
-                HashSet<String> cleanSet = new HashSet<>();
-                cleanSet.add(locName);
-                g.cleanMap.put(clearName, cleanSet);
-            }
             Map<String, Object> map = new HashMap<>();
             map.put("id", lastNodeId);
-            map.put("name", locName);
+            map.put("name", originName);
             map.put("lon", lastNode.lon);
             map.put("lat", lastNode.lat);
 
-            if (g.allLocation.containsKey(locName)) {
-                g.allLocation.get(locName).add(map);
+            // create mapping between origin word with all possible object
+            if (g.allLocation.containsKey(originName)) {
+                g.allLocation.get(originName).add(map);
             } else {
                 HashSet<Map<String, Object>> newSet = new HashSet<>();
                 newSet.add(map);
-                g.allLocation.put(locName, newSet);
+                g.allLocation.put(originName, newSet);
             }
         }
     }
@@ -227,6 +217,7 @@ public class GraphBuildingHandler extends DefaultHandler {
         }
     }
 
+    /** connect the nodes together */
     private void makeConnectinos(String node) {
         for (String n : nodes) {
             if (!n.equals(node)) {

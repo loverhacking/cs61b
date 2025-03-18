@@ -26,13 +26,13 @@ public class GraphDB {
 
 
 
-    // map clean name to origin name
+    /** create mapping between clean word with all possible origin word */
     HashMap<String, HashSet<String>> locations = new HashMap<>();
 
+    /** create mapping between origin word with all possible object */
     HashMap<String, HashSet<Map<String, Object>>> allLocation = new HashMap<>();
 
-    HashMap<String, HashSet<String>> cleanMap = new HashMap<>();
-
+    /** create a Trie to record cleanWord */
     Trie t = new Trie();
 
     static class Node {
@@ -74,23 +74,6 @@ public class GraphDB {
             return Objects.hash(fromId, toId);
         }
     }
-
-    static class Location {
-        long id;
-        double lon;
-        double lat;
-        String name;
-
-        Location(long id, double lon, double lat, String name) {
-            this.id = id;
-            this.lon = lon;
-            this.lat = lat;
-            this.name = name;
-
-        }
-    }
-
-
 
     void addNode(Long id, Node node) {
         nodes.put(id, node);
@@ -136,7 +119,6 @@ public class GraphDB {
      *  we can reasonably assume this since typically roads are connected.
      */
     private void clean() {
-        // TODO: Your code here.
         HashMap<Long, Node> newNodes = new HashMap<>();
         for (Long id : nodes.keySet()) {
             Node node = nodes.get(id);
@@ -255,50 +237,45 @@ public class GraphDB {
         return nodes.get(v).lat;
     }
 
+
+    /**
+     * In linear time, collect all the names of OSM locations that prefix-match the query string.
+     * @param prefix Prefix string to be searched for. Could be any case, with our without
+     *               punctuation.
+     * @return A <code>List</code> of the full names of locations whose cleaned name matches the
+     * cleaned <code>prefix</code>.
+     */
     public List<String> getLocationsByPrefix(String prefix) {
         List<String> result = new ArrayList<>();
-        List<String> oResult = t.getAllWordsWithPrefix(prefix);
-        for (String word : oResult) {
-            HashSet<String> t = locations.get(word);
-            result.addAll(t);
+        List<String> cleanResult = t.getAllWordsWithPrefix(prefix);
+        for (String word : cleanResult) {
+            HashSet<String> matchWord = locations.get(word);
+            result.addAll(matchWord);
         }
         return result;
     }
 
-
-
+    /**
+     * Collect all locations that match a cleaned <code>locationName</code>, and return
+     * information about each node that matches.
+     * @param locationName A full name of a location searched for.
+     * @return A list of locations whose cleaned name matches the
+     * cleaned <code>locationName</code>, and each location is a map of parameters for the Json
+     * response as specified: <br>
+     * "lat" : Number, The latitude of the node. <br>
+     * "lon" : Number, The longitude of the node. <br>
+     * "name" : String, The actual name of the node. <br>
+     * "id" : Number, The id of the node. <br>
+     */
     public List<Map<String, Object>> getLocations(String locationName) {
 
         List<Map<String, Object>> result = new ArrayList<>();
-        HashSet<String> matchString = cleanMap.get(locationName);
+        HashSet<String> matchString = locations.get(locationName);
 
         for (String word : matchString) {
             result.addAll(allLocation.get(word));
         }
-        
         return result;
-
-    }
-
-    private void addMap(List<Map<String, Object>> result, HashSet<Node> set) {
-        for (Node node : set) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("id", node.id);
-            map.put("lon", node.lon);
-            map.put("lat", node.lat);
-            map.put("name", node.name);
-            result.add(map);
-        }
-    }
-
-
-
-    public static void main (String[] args) {
-        String OSM_DB_PATH = "../library-sp18/data/berkeley-2018.osm.xml";
-        GraphDB g = new GraphDB(OSM_DB_PATH);
-
-        System.out.println(g.getLocations("alcatraz  telegraph"));
-
     }
 
 }
