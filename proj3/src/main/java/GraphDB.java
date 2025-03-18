@@ -24,10 +24,14 @@ public class GraphDB {
 
     HashMap<Edge, String> edges = new HashMap<>();
 
+
+
     // map clean name to origin name
     HashMap<String, HashSet<String>> locations = new HashMap<>();
 
-    HashMap<String, HashSet<Node>> allLocation = new HashMap<>();
+    HashMap<String, HashSet<Map<String, Object>>> allLocation = new HashMap<>();
+
+    HashMap<String, HashSet<String>> cleanMap = new HashMap<>();
 
     Trie t = new Trie();
 
@@ -70,6 +74,23 @@ public class GraphDB {
             return Objects.hash(fromId, toId);
         }
     }
+
+    static class Location {
+        long id;
+        double lon;
+        double lat;
+        String name;
+
+        Location(long id, double lon, double lat, String name) {
+            this.id = id;
+            this.lon = lon;
+            this.lat = lat;
+            this.name = name;
+
+        }
+    }
+
+
 
     void addNode(Long id, Node node) {
         nodes.put(id, node);
@@ -247,12 +268,14 @@ public class GraphDB {
 
 
     public List<Map<String, Object>> getLocations(String locationName) {
+
         List<Map<String, Object>> result = new ArrayList<>();
-        for (String s : allLocation.keySet()) {
-            if (cleanString(s).equals(locationName)) {
-                addMap(result, allLocation.get(s));
-            }
+        HashSet<String> matchString = cleanMap.get(locationName);
+
+        for (String word : matchString) {
+            result.addAll(allLocation.get(word));
         }
+        
         return result;
 
     }
@@ -270,12 +293,12 @@ public class GraphDB {
 
 
 
-//    public static void main (String[] args) {
-//        String OSM_DB_PATH = "../library-sp18/data/berkeley-2018.osm.xml";
-//        GraphDB g = new GraphDB(OSM_DB_PATH);
-//
-//        System.out.println(g.getLocations("alcatraz  telegraph"));
-//
-//    }
+    public static void main (String[] args) {
+        String OSM_DB_PATH = "../library-sp18/data/berkeley-2018.osm.xml";
+        GraphDB g = new GraphDB(OSM_DB_PATH);
+
+        System.out.println(g.getLocations("alcatraz  telegraph"));
+
+    }
 
 }

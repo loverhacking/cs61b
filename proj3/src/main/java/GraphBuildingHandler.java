@@ -155,15 +155,27 @@ public class GraphBuildingHandler extends DefaultHandler {
             g.t.add(clearName);
             g.nodes.get(lastNodeId).name = locName;
 
+
+
             // create location
-            GraphDB.Node n = new GraphDB.Node(lastNode.lon, lastNode.lat);
-            n.name = locName;
-            n.id = lastNodeId;
-            if (g.allLocation.containsKey(locName)) {
-                g.allLocation.get(locName).add(n);
+            if (g.cleanMap.containsKey(clearName)) {
+                g.cleanMap.get(clearName).add(locName);
             } else {
-                HashSet<GraphDB.Node> newSet = new HashSet<>();
-                newSet.add(n);
+                HashSet<String> cleanSet = new HashSet<>();
+                cleanSet.add(locName);
+                g.cleanMap.put(clearName, cleanSet);
+            }
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", lastNodeId);
+            map.put("name", locName);
+            map.put("lon", lastNode.lon);
+            map.put("lat", lastNode.lat);
+
+            if (g.allLocation.containsKey(locName)) {
+                g.allLocation.get(locName).add(map);
+            } else {
+                HashSet<Map<String, Object>> newSet = new HashSet<>();
+                newSet.add(map);
                 g.allLocation.put(locName, newSet);
             }
         }
