@@ -72,11 +72,9 @@ public class GraphBuildingHandler extends DefaultHandler {
      * @see Attributes
      */
     @Override
-    public void startElement(String uri, String localName,
-                             String qName, Attributes attributes)
+    public void startElement(String uri, String localName, String qName, Attributes attributes)
             throws SAXException {
         /* Some example code on how you might begin to parse XML files. */
-
 
         if (qName.equals("node")) {
             /* We encountered a new <node...> tag. */
@@ -84,7 +82,6 @@ public class GraphBuildingHandler extends DefaultHandler {
 //            System.out.println("Node id: " + attributes.getValue("id"));
 //            System.out.println("Node lon: " + attributes.getValue("lon"));
 //            System.out.println("Node lat: " + attributes.getValue("lat"));
-
             /* Hint: A graph-like structure would be nice. */
             GraphDB.Node node = new GraphDB.Node(Double.parseDouble(attributes.getValue("lon")),
                     Double.parseDouble(attributes.getValue("lat")));
@@ -92,7 +89,6 @@ public class GraphBuildingHandler extends DefaultHandler {
             lastNode = node;
             lastNodeId = node.id;
             g.addNode(node.id, node);
-
 
         } else if (qName.equals("way")) {
             /* We encountered a new <way...> tag. */
@@ -120,13 +116,11 @@ public class GraphBuildingHandler extends DefaultHandler {
             if (k.equals("maxspeed")) {
                 //System.out.println("Max Speed: " + v);
                 lastWayMaxSpeed = v;
-
             } else if (k.equals("highway")) {
                 //System.out.println("Highway type: " + v);
                 if (ALLOWED_HIGHWAY_TYPES.contains(v)) {
                     isValidEdge = true;
                 }
-
                 /* Hint: Setting a "flag" is good enough! */
             } else if (k.equals("name")) {
                 //System.out.println("Way Name: " + v);
@@ -136,7 +130,6 @@ public class GraphBuildingHandler extends DefaultHandler {
         } else if (activeState.equals("node") && qName.equals("tag") && attributes.getValue("k")
                 .equals("name")) {
             /* While looking at a node, we found a <tag...> with k="name". */
-
             /* Hint: Since we found this <tag...> INSIDE a node, we should probably remember which
             node this tag belongs to. Remember XML is parsed top-to-bottom, so probably it's the
             last node that you looked at (check the first if-case). */
@@ -144,36 +137,16 @@ public class GraphBuildingHandler extends DefaultHandler {
             String originName = attributes.getValue("v");
             String clearName = GraphDB.cleanString(originName);
 
-
             // create mapping between clean word with all possible origin word
-            if (g.locations.containsKey(clearName)) {
-                g.locations.get(clearName).add(originName);
-            } else {
-                HashSet<String> temp = new HashSet<>();
-                temp.add(originName);
-                g.locations.put(clearName, temp);
-            }
+            createLocationMap(clearName, originName);
 
             // add clearName to Trie
             g.t.add(clearName);
 
             g.nodes.get(lastNodeId).name = originName;
 
-
-            Map<String, Object> map = new HashMap<>();
-            map.put("id", lastNodeId);
-            map.put("name", originName);
-            map.put("lon", lastNode.lon);
-            map.put("lat", lastNode.lat);
-
             // create mapping between origin word with all possible object
-            if (g.allLocation.containsKey(originName)) {
-                g.allLocation.get(originName).add(map);
-            } else {
-                HashSet<Map<String, Object>> newSet = new HashSet<>();
-                newSet.add(map);
-                g.allLocation.put(originName, newSet);
-            }
+            createAllLocationMap(originName);
         }
     }
 
@@ -239,6 +212,41 @@ public class GraphBuildingHandler extends DefaultHandler {
                 }
                 g.addEdge(edge, lastWayName);
             }
+        }
+    }
+
+    /**
+     * create mapping between clean word with all possible origin word
+     * Note: prepare for getLocationsByPrefix method and getLocations method
+     */
+    private void createLocationMap(String clear, String origin) {
+
+        if (g.locations.containsKey(clear)) {
+            g.locations.get(clear).add(origin);
+        } else {
+            HashSet<String> temp = new HashSet<>();
+            temp.add(origin);
+            g.locations.put(clear, temp);
+        }
+    }
+
+    /**
+     * create mapping between origin word with all possible object
+     * Note: prepare for getLocations method
+     */
+    private void createAllLocationMap(String origin) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", lastNodeId);
+        map.put("name", origin);
+        map.put("lon", lastNode.lon);
+        map.put("lat", lastNode.lat);
+
+        if (g.allLocation.containsKey(origin)) {
+            g.allLocation.get(origin).add(map);
+        } else {
+            HashSet<Map<String, Object>> newSet = new HashSet<>();
+            newSet.add(map);
+            g.allLocation.put(origin, newSet);
         }
     }
 
