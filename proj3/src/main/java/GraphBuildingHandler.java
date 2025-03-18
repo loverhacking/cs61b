@@ -2,7 +2,12 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *  Parses OSM XML files using an XML SAX parser. Used to construct the graph of roads for
@@ -67,7 +72,8 @@ public class GraphBuildingHandler extends DefaultHandler {
      * @see Attributes
      */
     @Override
-    public void startElement(String uri, String localName, String qName, Attributes attributes)
+    public void startElement(String uri, String localName,
+                             String qName, Attributes attributes)
             throws SAXException {
         /* Some example code on how you might begin to parse XML files. */
 
