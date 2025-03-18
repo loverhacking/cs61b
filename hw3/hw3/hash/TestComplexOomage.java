@@ -34,7 +34,7 @@ public class TestComplexOomage {
         assertTrue(OomageTestUtility.haveNiceHashCodeSpread(oomages, 10));
     }
 
-    /* 
+    /*
      * that shows the flaw in the hashCode function.
      */
     private ArrayList<Integer> randomList() {

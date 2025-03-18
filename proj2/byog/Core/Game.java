@@ -3,7 +3,10 @@ package byog.Core;
 import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
+import edu.princeton.cs.algs4.StdDraw;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.util.Random;
 import java.util.Stack;
 
@@ -23,6 +26,65 @@ public class Game {
      * Method used for playing a fresh game. The game should start from the main menu.
      */
     public void playWithKeyboard() {
+
+        drawStartUI();
+
+        char firstChar = getFirstChar();
+        switch (firstChar) {
+            case 'n':
+                newGame();
+                break;
+            case 'l':
+                loadGame();
+                break;
+            case 'q':
+                System.exit(0);
+                break;
+            default:
+                break;
+        }
+    }
+
+    /* get first char typed by user */
+    private char getFirstChar() {
+
+        char c;
+        while (true) {
+            if (!StdDraw.hasNextKeyTyped()) {
+                continue;
+            }
+            c = Character.toLowerCase(StdDraw.nextKeyTyped());
+            if (c == 'n' || c == 'l' || c == 'q') {
+                break;
+            }
+        }
+        return c;
+    }
+
+    /* draw startUI */
+    private void drawStartUI() {
+        initializeCanvas();
+
+        Font font = new Font("Monaco", Font.PLAIN, 60);
+        StdDraw.setFont(font);
+        StdDraw.text(WIDTH / 2, 3 * HEIGHT / 4, "CS61B: THE GAME");
+
+        Font smallFont = new Font("Monaco", Font.PLAIN, 30);
+        StdDraw.setFont(smallFont);
+        StdDraw.text(WIDTH / 2, HEIGHT / 4 + 2, "New Game (N)");
+        StdDraw.text(WIDTH / 2, HEIGHT / 4, "Load Game (L)");
+        StdDraw.text(WIDTH / 2, HEIGHT / 4 - 2, "Quit (Q)");
+
+        StdDraw.show();
+    }
+
+    private void initializeCanvas() {
+        StdDraw.setCanvasSize(WIDTH * 16, (HEIGHT + 1) * 16);
+        StdDraw.setXscale(0, WIDTH);
+        StdDraw.setYscale(0, HEIGHT + 1);
+        StdDraw.clear(Color.BLACK);
+        StdDraw.enableDoubleBuffering();
+        StdDraw.setPenColor(Color.WHITE);
     }
 
     /**
@@ -71,6 +133,30 @@ public class Game {
         }
     }
 
+    /**
+     * new game with keyboard
+     */
+    private void newGame() {
+        long seed = getSeed();
+
+        // initialize tiles
+        ter.initialize(WIDTH, HEIGHT);
+        TETile[][] world = generateWorld(seed);
+        ter.renderFrame(world);
+        play(world);
+
+        TETile[][] world = new TETile[WIDTH][HEIGHT];
+        initialMaze(world);
+        createMaze(world, seed);
+    }
+
+    private TETile[][] generateWorld(long seed) {
+
+        TETile[][] world = new TETile[WIDTH][HEIGHT];
+        initialMaze(world);
+        createMaze(world, seed);
+    }
+
     /* start a new game */
     private TETile[][] newGame(String input) {
 
@@ -88,6 +174,46 @@ public class Game {
 
     private void saveGame(TETile[][] world) {
         stack.push(world);
+    }
+
+    /**
+     * Get seed from keyboard
+     */
+    private long getSeed() {
+
+        StdDraw.clear(Color.BLACK);
+        StdDraw.setFont(new Font("Monaco", Font.PLAIN, 50));
+        StdDraw.text(WIDTH / 2, 3 * HEIGHT / 4, "Please enter a random seed:");
+        StdDraw.show();
+        String seedString = "";
+
+        while (true) {
+
+            StdDraw.clear(Color.BLACK);
+            StdDraw.setFont(new Font("Monaco", Font.PLAIN, 50));
+            StdDraw.text(WIDTH / 2, 3 * HEIGHT / 4, "Please enter a random seed:");
+
+            char digit;
+            if (!StdDraw.hasNextKeyTyped()) {
+                continue;
+            }
+            digit = Character.toLowerCase(StdDraw.nextKeyTyped());
+            if (digit != 's') {
+                if (!Character.isDigit(digit)) {
+                    continue;
+                }
+                seedString += digit;
+
+                StdDraw.setFont(new Font("Monaco", Font.PLAIN, 30));
+                StdDraw.text(WIDTH / 2, HEIGHT / 2, seedString);
+                StdDraw.show();
+            } else {
+                break;
+            }
+
+        }
+        long seed = convertSeed(seedString);
+        return seed;
     }
 
     private long convertSeed(String seedString) {
@@ -320,6 +446,52 @@ public class Game {
 
     }
 
+    /**
+     * Play game with keyboard.
+     */
+    private void play(TETile[][] world) {
+        while (true) {
+            if (!StdDraw.hasNextKeyTyped()) {
+                continue;
+            }
+
+            char c = StdDraw.nextKeyTyped();
+
+            switch (c) {
+                case 'w':
+                    Player.walkUp(world);
+                    ter.renderFrame(world);
+                    break;
+                case 'a':
+                    Player.walkLeft(world);
+                    ter.renderFrame(world);
+                    break;
+                case 's':
+                    Player.walkDown(world);
+                    ter.renderFrame(world);
+                    break;
+                case 'd':
+                    Player.walkRight(world);
+                    ter.renderFrame(world);
+                    break;
+                case ':':
+                    while (true) {
+                        if (!StdDraw.hasNextKeyTyped()) {
+                            continue;
+                        }
+                        if (Character.toLowerCase(StdDraw.nextKeyTyped()) == 'q') {
+                            saveGame(world);
+                            System.exit(0);
+                        } else {
+                            break;
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 
 
 }

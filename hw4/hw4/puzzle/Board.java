@@ -22,6 +22,7 @@ public class Board implements WorldState {
 
 
     }
+
     public int tileAt(int i, int j) {
 
         if (i < 0 || i >= N || j < 0 || j >= N) {
@@ -29,11 +30,12 @@ public class Board implements WorldState {
         }
         return board[i][j];
     }
+
     public int size() {
         return N;
     }
 
-    /** https://joshh.ug/neighbors.html */
+    /* https://joshh.ug/neighbors.html */
     public Iterable<WorldState> neighbors() {
         Queue<WorldState> neighbors = new Queue<>();
         int hug = size();
@@ -93,6 +95,7 @@ public class Board implements WorldState {
         }
         return count;
     }
+
     public int manhattan() {
         int igoal, jgoal;
         int num;

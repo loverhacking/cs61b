@@ -13,17 +13,19 @@ public class Solver {
     private WorldState s;
     private MinPQ<SearchNode> BMS;
     private HashMap<WorldState, Integer> h;
-
-    private LinkedList<WorldState> list;
+    private LinkedList<WorldState> solList;
 
     public Solver(WorldState initial) {
+
         s = initial;
         numMoves = 0;
         targetSearchNode = null;
+        solList = new LinkedList<>();
+        h = new HashMap<>();
+
         BMS = new MinPQ<>();
         BMS.insert(new SearchNode(0, s, null));
-        list = new LinkedList<>();
-        h = new HashMap<>();
+
         getSolution();
     }
 
@@ -38,7 +40,11 @@ public class Solver {
             this.prev = prev;
         }
 
-
+        /**
+         * To avoid recomputing the estimatedDistanceToGoal() result from scratch 
+         * each time during various priority queue operations, 
+         * compute it at most once per object
+         */
         @Override
         public int compareTo(SearchNode o) {
             int hthis, ho;
@@ -59,12 +65,20 @@ public class Solver {
     }
 
 
+    /**
+     * Returns the minimum number of moves
+     * to solve the puzzle starting at the initial WorldState.
+     */
     public int moves() {
         return numMoves;
     }
 
+    /**
+     * Returns a sequence of WorldStates
+     * from the initial WorldState to the solution.
+     */
     public Iterable<WorldState> solution() {
-        return list;
+        return solList;
     }
 
     private void solve() {
@@ -79,6 +93,7 @@ public class Solver {
             }
             for (WorldState ws: state.neighbors()) {
                 if (n.prev == null || !ws.equals(n.prev.w)) {
+                    /* no enqueued WorldState is its own grandparent */
                     BMS.insert(new SearchNode(n.moves + 1, ws, n));
                 }
             }
@@ -90,7 +105,7 @@ public class Solver {
         solve();
         SearchNode n = targetSearchNode;
         while (n != null) {
-            list.addFirst(n.w);
+            solList.addFirst(n.w);
             n = n.prev;
         }
     }

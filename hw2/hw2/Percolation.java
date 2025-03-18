@@ -1,5 +1,6 @@
 package hw2;
 
+import edu.princeton.cs.algs4.QuickFindUF;
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 
@@ -15,6 +16,8 @@ public class Percolation {
      * using ufWithVirtualBottomSite.
      */
 
+    //private final QuickFindUF ufWithVirtualBottomSite;
+    //private final QuickFindUF ufWithoutVirtualBottomSite;
     private final WeightedQuickUnionUF ufWithVirtualBottomSite;
     private final WeightedQuickUnionUF ufWithoutVirtualBottomSite;
 
@@ -29,6 +32,10 @@ public class Percolation {
         }
         ufWithVirtualBottomSite = new WeightedQuickUnionUF(N * N + 2);
         ufWithoutVirtualBottomSite = new WeightedQuickUnionUF(N * N + 1);
+
+        //ufWithVirtualBottomSite = new QuickFindUF(N * N + 2);
+        //ufWithoutVirtualBottomSite = new QuickFindUF(N * N + 1);
+
         flagOpen = new boolean[N][N];
         openSite = 0;
         this.N = N;
@@ -57,7 +64,7 @@ public class Percolation {
             throw new IndexOutOfBoundsException();
         }
 
-        if (!flagOpen[row][col]) {
+        if (!isOpen(row, col)) {
             flagOpen[row][col] = true;
             connectVirtualSite(row, col);
             connectSite(row, col, row + 1, col);

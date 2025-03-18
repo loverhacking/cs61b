@@ -1,7 +1,9 @@
 package hw2;
 
+import edu.princeton.cs.introcs.StdOut;
 import edu.princeton.cs.introcs.StdRandom;
 import edu.princeton.cs.introcs.StdStats;
+
 public class PercolationStats {
 
     private int N;
@@ -61,5 +63,23 @@ public class PercolationStats {
     public double confidenceHigh() {
         return mean() + 1.96 * stddev() / Math.sqrt(T);
     }
+
+    // Runtime Analysis
+//    public static void main(String[] args) {
+//
+//        double[] a = new double[27];
+//        int i = 0;
+//        for (int N = 20; N < 300; N = N + 10) {
+//            Stopwatch sw = new Stopwatch();
+//
+//            PercolationStats ps = new PercolationStats(N, 10, new PercolationFactory());
+//
+//            double time1 = sw.elapsedTime();
+//            a[i] = time1;
+//            i++;
+//            StdOut.printf("N = %d ", N);
+//            StdOut.printf("(%.2f seconds)\n", time1);
+//        }
+//    }
 
 }

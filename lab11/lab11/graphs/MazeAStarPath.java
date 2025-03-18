@@ -65,12 +65,12 @@ public class MazeAStarPath extends MazeExplorer {
     }
 
     /** Performs an A star search from vertex s. */
-    private void astar(int s) {
+    private void astar(int src) {
 
-        marked[s] = true;
+        marked[src] = true;
         announce();
 
-        pq.offer(new Node(s));
+        pq.offer(new Node(src));
 
         /* like BFS but use PQ instead of Queue to maintain vertexes to be visited */
         while (!pq.isEmpty()) {
