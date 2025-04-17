@@ -1,6 +1,7 @@
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.PriorityQueue;
 
 
 public class Boggle {
@@ -17,8 +18,11 @@ public class Boggle {
     /** record the char in board whether be visited */
     private static boolean[][] visited;
 
-    /** record the desired k word */
+    /** record the desired k words */
     private static LinkedList<String> matchWordList;
+
+    /** maintain k large words */
+    private static PriorityQueue<String> matchQueue;
 
     /** a stack used to simulate DFS using iterative method */
     private static LinkedList<Direction> stack;
@@ -67,7 +71,21 @@ public class Boggle {
             t.add(a);
         }
 
-        matchWordList = new LinkedList<>();
+
+        matchQueue = new PriorityQueue<>(new Comparator<String>() {
+            /**
+             * sorted in descending order of length.
+             * If multiple words have the same length,
+             * have them in ascending alphabetical order.
+             */
+            @Override
+            public int compare(String o1, String o2) {
+                if (o1.length() != o2.length()) {
+                    return o1.length() - o2.length();
+                }
+                return o1.compareTo(o2);
+            }
+        });
         stack = new LinkedList<>();
         visited = new boolean[M][N];
 
@@ -80,6 +98,11 @@ public class Boggle {
                     solveHelper(k);
                 }
             }
+        }
+
+        matchWordList = new LinkedList<>();
+        while (!matchQueue.isEmpty()) {
+            matchWordList.addFirst(matchQueue.poll());
         }
 
         return matchWordList;
@@ -114,9 +137,11 @@ public class Boggle {
 
             // exist matched word and record it into matchWordList
             if (value.length() >= 3 && node != null && node.isEnd()
-                    && !matchWordList.contains(value)) {
-                matchWordList.addLast(value);
-                maintainSet(k);
+                    && !matchQueue.contains(value)) {
+                matchQueue.add(value);
+                if (matchQueue.size() > k) {
+                    matchQueue.poll();
+                }
             }
 
             // search all the neighbors
@@ -171,27 +196,7 @@ public class Boggle {
         }
     }
 
-    /** maintain the matchWordList to be sorted and size <= k */
-    private static void maintainSet(int k) {
-        matchWordList.sort(new Comparator<String>() {
-            /**
-             * sorted in descending order of length.
-             * If multiple words have the same length,
-             * have them in ascending alphabetical order.
-             */
-            @Override
-            public int compare(String o1, String o2) {
-                if (o1.length() != o2.length()) {
-                    return -(o1.length() - o2.length());
-                }
-                return o1.compareTo(o2);
-            }
-        });
-        if (matchWordList.size() > k) {
-            matchWordList.removeLast();
-        }
 
-    }
 
     private static String addString(String word, char c) {
 
