@@ -18,11 +18,9 @@ public class Boggle {
     /** record the char in board whether be visited */
     private static boolean[][] visited;
 
-    /** record the desired k words */
+    /** record the desired k word */
     private static LinkedList<String> matchWordList;
 
-    /** maintain k large words */
-    private static PriorityQueue<String> matchQueue;
 
     /** a stack used to simulate DFS using iterative method */
     private static LinkedList<Direction> stack;
@@ -71,21 +69,8 @@ public class Boggle {
             t.add(a);
         }
 
+        matchWordList = new LinkedList<>();
 
-        matchQueue = new PriorityQueue<>(new Comparator<String>() {
-            /**
-             * sorted in descending order of length.
-             * If multiple words have the same length,
-             * have them in ascending alphabetical order.
-             */
-            @Override
-            public int compare(String o1, String o2) {
-                if (o1.length() != o2.length()) {
-                    return o1.length() - o2.length();
-                }
-                return o1.compareTo(o2);
-            }
-        });
         stack = new LinkedList<>();
         visited = new boolean[M][N];
 
@@ -100,10 +85,7 @@ public class Boggle {
             }
         }
 
-        matchWordList = new LinkedList<>();
-        while (!matchQueue.isEmpty()) {
-            matchWordList.addFirst(matchQueue.poll());
-        }
+
 
         return matchWordList;
     }
@@ -137,11 +119,9 @@ public class Boggle {
 
             // exist matched word and record it into matchWordList
             if (value.length() >= 3 && node != null && node.isEnd()
-                    && !matchQueue.contains(value)) {
-                matchQueue.add(value);
-                if (matchQueue.size() > k) {
-                    matchQueue.poll();
-                }
+                    && !matchWordList.contains(value)) {
+                matchWordList.add(value);
+                setWordList(k);
             }
 
             // search all the neighbors
@@ -183,6 +163,24 @@ public class Boggle {
 
     }
 
+    private static void setWordList(int k) {
+        matchWordList.sort(new Comparator<String>() {
+
+            @Override
+            public int compare(String o1, String o2) {
+                if (o1.length() != o2.length()) {
+                    return -(o1.length() - o2.length());
+                }
+                return o1.compareTo(o2);
+            }
+        });
+
+        if (matchWordList.size() > k) {
+            matchWordList.removeLast();
+        }
+
+    }
+
     /** check the given board is rectangular */
     private static void checkIsRectangular(String[] strings) {
         if (strings.length < 2) {
@@ -209,6 +207,7 @@ public class Boggle {
     private static boolean checkInArray(int i, int j) {
         return i >= 0 && i < M && j >= 0 && j < N;
     }
+    
 }
 
 
