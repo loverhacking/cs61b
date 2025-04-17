@@ -1,6 +1,7 @@
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.PriorityQueue;
 
 public class Boggle {
 
@@ -18,6 +19,8 @@ public class Boggle {
 
     /** record the desired k word */
     private static LinkedList<String> matchWordList;
+
+    private static PriorityQueue<String> pq;
 
 
     /** a stack used to simulate DFS using iterative method */
@@ -67,10 +70,19 @@ public class Boggle {
             t.add(a);
         }
 
-        matchWordList = new LinkedList<>();
-
         stack = new LinkedList<>();
         visited = new boolean[M][N];
+
+        pq = new PriorityQueue<>(new Comparator<String>() {
+
+            @Override
+            public int compare(String o1, String o2) {
+                if (o1.length() != o2.length()) {
+                    return o1.length() - o2.length();
+                }
+                return -o1.compareTo(o2);
+            }
+        });
 
         for (int i = 0; i < M; i++) {
             for (int j = 0; j < N; j++) {
@@ -83,7 +95,11 @@ public class Boggle {
             }
         }
 
+        matchWordList = new LinkedList<>();
 
+        while (!pq.isEmpty()) {
+            matchWordList.addFirst(pq.poll());
+        }
 
         return matchWordList;
     }
@@ -117,8 +133,8 @@ public class Boggle {
 
             // exist matched word and record it into matchWordList
             if (value.length() >= 3 && node != null && node.isEnd()
-                    && !matchWordList.contains(value)) {
-                matchWordList.add(value);
+                    && !pq.contains(value)) {
+                pq.add(value);
                 setWordList(k);
             }
 
@@ -162,19 +178,10 @@ public class Boggle {
     }
 
     private static void setWordList(int k) {
-        matchWordList.sort(new Comparator<String>() {
 
-            @Override
-            public int compare(String o1, String o2) {
-                if (o1.length() != o2.length()) {
-                    return -(o1.length() - o2.length());
-                }
-                return o1.compareTo(o2);
-            }
-        });
 
-        if (matchWordList.size() > k) {
-            matchWordList.removeLast();
+        if (pq.size() > k) {
+            pq.remove();
         }
 
     }
@@ -205,7 +212,9 @@ public class Boggle {
     private static boolean checkInArray(int i, int j) {
         return i >= 0 && i < M && j >= 0 && j < N;
     }
-    
+
+
+
 }
 
 
