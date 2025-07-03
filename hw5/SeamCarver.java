@@ -9,16 +9,13 @@ public class SeamCarver {
     private final int width;
     private final int height;
 
-    /** energy cost of pixel at location (i, j) */
-    private double[][] energyPixel;
-
     /** cost of minimum cost path ending at (i, j) */
     private double[][] M;
 
     /**
      * pixel (x, y) refers to the pixel in column x and row y,
-     * with pixel (0, 0) at the upper left corner
-     * and pixel (W − 1, H − 1) at the bottom right corner.
+     * with pixel (0, 0) in the upper left corner
+     * and pixel (W − 1, H − 1) in the bottom right corner.
      */
 
     public SeamCarver(Picture picture) {
@@ -27,8 +24,6 @@ public class SeamCarver {
         height = image.height();
 
     }
-
-
 
     // current picture
     public Picture picture() {
@@ -72,14 +67,34 @@ public class SeamCarver {
             belowY = 0;
         }
 
-        int deltaX = square(image.get(leftX, y).getRed() - image.get(rightX, y).getRed())
-                + square(image.get(leftX, y).getGreen() - image.get(rightX, y).getGreen())
-                + square(image.get(leftX, y).getBlue() - image.get(rightX, y).getBlue());
-        int deltaY = square(image.get(x, upY).getRed() - image.get(x, belowY).getRed())
-                + square(image.get(x, upY).getGreen() - image.get(x, belowY).getGreen())
-                + square(image.get(x, upY).getBlue() - image.get(x, belowY).getBlue());
-
+        int deltaX = calculateSquareGradient(picture().getRGB(leftX, y), picture().getRGB(rightX, y));
+        int deltaY = calculateSquareGradient(picture().getRGB(x, upY), picture().getRGB(x, belowY));
         return deltaX + deltaY;
+    }
+
+    private int calculateSquareGradient(int color1, int color2) {
+        int color1Red = getRed(color1);
+        int color2Red = getRed(color2);
+
+        int color1Blue = getBlue(color1);
+        int color2Blue = getBlue(color2);
+
+        int color1Green = getGreen(color1);
+        int color2Green = getGreen(color2);
+        return (color1Red - color2Red) * (color1Red - color2Red)
+                + (color1Blue - color2Blue) * (color1Blue - color2Blue)
+                + (color1Green - color2Green) * (color1Green - color2Green);
+    }
+
+    // helper methods to get int
+    private int getRed(int rgb) {
+        return (rgb >> 16) & 0xFF;
+    }
+    private int getGreen(int rgb) {
+        return (rgb >> 8) & 0xFF;
+    }
+    private int getBlue(int rgb) {
+        return (rgb) & 0xFF;
     }
 
     // sequence of indices for vertical seam
@@ -88,10 +103,10 @@ public class SeamCarver {
         int thisWidth = image.width();
         int thisHeight = image.height();
 
-
-        energyPixel = new double[thisHeight][thisWidth];
+        // energy cost of pixel at location (i, j)
+        double[][] energyPixel = new double[thisHeight][thisWidth];
         M = new double[thisHeight][thisWidth];
-        int[] verticallSeam = new int[thisHeight];
+        int[] verticalSeam = new int[thisHeight];
 
         double min = Double.MAX_VALUE;
         int minIndex = 0;
@@ -109,14 +124,14 @@ public class SeamCarver {
             }
         }
 
-        verticallSeam[thisHeight - 1] = minIndex;
+        verticalSeam[thisHeight - 1] = minIndex;
 
         int j = minIndex;
         for (int i = thisHeight - 1; i >= 1; i--) {
             j = minMCost(i, j);
-            verticallSeam[i - 1] = j;
+            verticalSeam[i - 1] = j;
         }
-        return verticallSeam;
+        return verticalSeam;
     }
 
 
@@ -133,9 +148,8 @@ public class SeamCarver {
             return M[i - 1][j - 1] > M[i - 1][j] ? j : j - 1;
         }
 
-        int tempmin = M[i - 1][j - 1] > M[i - 1][j] ? j : j - 1;
-        return M[i - 1][tempmin] > M[i - 1][j + 1] ? j + 1 : tempmin;
-
+        int tempMin = M[i - 1][j - 1] > M[i - 1][j] ? j : j - 1;
+        return M[i - 1][tempMin] > M[i - 1][j + 1] ? j + 1 : tempMin;
     }
 
     /** find min energyPixel[][] neighbors given i, j */
@@ -160,16 +174,15 @@ public class SeamCarver {
 
     // sequence of indices for horizontal seam
     public  int[] findHorizontalSeam() {
-        transimage();
+        transImage();
         int[] horizontalSeam = findVerticalSeam();
-        transimage();
+        transImage();
         return horizontalSeam;
-
     }
 
 
     /** transpose the image */
-    private void transimage() {
+    private void transImage() {
         Picture newImage = new Picture(image.height(), image.width());
         for (int i = 0; i < newImage.width(); i++) {
             for (int j = 0; j < newImage.height(); j++) {
@@ -205,9 +218,4 @@ public class SeamCarver {
         }
         return false;
     }
-
-    private int square(int x) {
-        return x * x;
-    }
-
 }
