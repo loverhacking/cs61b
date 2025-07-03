@@ -18,7 +18,7 @@ public class Boggle {
     private static boolean[][] visited;
 
     /** record the desired k word */
-    private static List<String> matchWordList;
+    private static LinkedList<String> matchWordList;
 
     private static int uid = 0;
 
