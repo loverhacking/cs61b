@@ -30,9 +30,6 @@ public class Percolation {
         ufWithVirtualBottomSite = new WeightedQuickUnionUF(N * N + 2);
         ufWithoutVirtualBottomSite = new WeightedQuickUnionUF(N * N + 1);
 
-        //ufWithVirtualBottomSite = new QuickFindUF(N * N + 2);
-        //ufWithoutVirtualBottomSite = new QuickFindUF(N * N + 1);
-
         flagOpen = new boolean[N][N];
         openSite = 0;
         this.N = N;
