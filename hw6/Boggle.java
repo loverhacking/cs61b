@@ -18,7 +18,7 @@ public class Boggle {
     private static boolean[][] visited;
 
     /** record the desired k word */
-    private static LinkedList<String> matchWordList;
+    private static List<String> matchWordList;
 
     private static int uid = 0;
 
@@ -112,6 +112,18 @@ public class Boggle {
                 }
             }
         }
+
+        matchWordList.sort((o1, o2) -> {
+            if (o1.length() != o2.length()) {
+                return -(o1.length() - o2.length());
+            }
+            return o1.compareTo(o2);
+        });
+
+        if (matchWordList.size() > k) {
+            matchWordList = new LinkedList<>(matchWordList.subList(0, k));
+        }
+
         return matchWordList;
     }
 
@@ -151,7 +163,7 @@ public class Boggle {
             if (d.node.word != null && d.node.uid != uid) {
                 matchWordList.add(d.node.word);
                 d.node.uid = uid;
-                setWordList(k);
+                //setWordList(k);
             }
 
             // search all the neighbors
