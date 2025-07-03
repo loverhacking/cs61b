@@ -1,4 +1,5 @@
-import java.util.Comparator;
+
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,13 +20,40 @@ public class Boggle {
     /** record the desired k word */
     private static LinkedList<String> matchWordList;
 
+    private static int uid = 0;
 
     /** a stack used to simulate DFS using iterative method */
-    private static LinkedList<Direction> stack;
+    private static LinkedList<Node> stack;
 
     // File path of dictionary file
     static String dictPath = "words.txt";
 
+    private static class TrieNode {
+        // notice that the alphabet consists of only the 26 letters A through Z
+        final HashMap<Character, TrieNode> children = new HashMap<>();
+        // represent the current getAllValidWords() call id to find whether the word has been found
+        int uid;
+        // build string in trie node to avoid frequently building strings in dfs
+        String word;
+    }
+
+    private static class Node {
+        int x;
+        int y;
+
+        /** whether the node is in backtracking stage */
+        boolean isBacktrack;
+
+        /** record the location node in Trie */
+        TrieNode node;
+
+        Node(int x, int y, boolean backtrack, TrieNode node) {
+            this.x = x;
+            this.y = y;
+            this.isBacktrack = backtrack;
+            this.node = node;
+        }
+    }
 
     /**
      * Solves a Boggle puzzle.
@@ -39,7 +67,9 @@ public class Boggle {
      */
     public static List<String> solve(int k, String boardFilePath) {
 
+        uid++;
 
+        TrieNode root = new TrieNode();
         In inputFile = new In(boardFilePath);
         if (k < 0 || !inputFile.exists()) {
             throw new IllegalArgumentException();
@@ -60,11 +90,12 @@ public class Boggle {
         }
 
         /** a Trie to recode WordDict */
-        Trie t = new Trie();
         In wordFile = new In(dictPath);
         while (wordFile.hasNextLine()) {
             String a = wordFile.readLine();
-            t.add(a);
+            if (a.length() >= 3) {
+                insert(root, a);
+            }
         }
 
         matchWordList = new LinkedList<>();
@@ -74,28 +105,31 @@ public class Boggle {
 
         for (int i = 0; i < M; i++) {
             for (int j = 0; j < N; j++) {
-                String s = String.valueOf(boardArray[i][j]);
-                if (t.startsWith(s)) {
-                    Trie.TrieNode node = t.searchPrefix(s);
-                    stack.add(new Direction(i, j, false, s, node));
+                TrieNode node = root.children.get(boardArray[i][j]);
+                if (node != null) {
+                    stack.add(new Node(i, j, false, node));
                     solveHelper(k);
                 }
             }
         }
-        
         return matchWordList;
+    }
+
+    private static void insert(TrieNode root, String word) {
+        TrieNode node = root;
+        for (char ch : word.toCharArray()) {
+            if (!node.children.containsKey(ch)) {
+                node.children.put(ch, new TrieNode());
+            }
+            node = node.children.get(ch);
+        }
+        node.word = word;
     }
 
     private static void solveHelper(int k) {
 
         while (!stack.isEmpty()) {
-            Direction d = stack.removeLast();
-
-            int dx = d.getX();
-            int dy = d.getY();
-            String value = d.getValue();
-            Trie.TrieNode node = d.getNode();
-
+            Node d = stack.removeLast();
             /**
              * divide the search into 2 phases:
              * search phase and backtracking phase
@@ -105,18 +139,18 @@ public class Boggle {
              * Note: consider stack First In Last Out to simulate DFS iteratively
              * and more importantly, to avoid the shared visited matrix messy.
              */
-            if (d.isBacktrack()) {
-                visited[dx][dy] = false;
+            if (d.isBacktrack) {
+                visited[d.x][d.y] = false;
                 continue;
             }
-            stack.addLast(new Direction(dx, dy, true, value, node));
+            stack.addLast(new Node(d.x, d.y, true, d.node));
 
-            visited[dx][dy] = true;
+            visited[d.x][d.y] = true;
 
             // exist matched word and record it into matchWordList
-            if (value.length() >= 3 && node != null && node.isEnd()
-                    && !matchWordList.contains(value)) {
-                matchWordList.add(value);
+            if (d.node.word != null && d.node.uid != uid) {
+                matchWordList.add(d.node.word);
+                d.node.uid = uid;
                 setWordList(k);
             }
 
@@ -129,8 +163,8 @@ public class Boggle {
                         continue;
                     }
 
-                    int ddx = dx + i;
-                    int ddy = dy + j;
+                    int ddx = d.x + i;
+                    int ddy = d.y + j;
 
                     // check neighbors in boardArray
                     if (!checkInArray(ddx, ddy)) {
@@ -146,13 +180,12 @@ public class Boggle {
                      * then stop exploring the neighbor nodes.
                      */
                     char c = boardArray[ddx][ddy];
-                    Trie.TrieNode nextNode = node.get(c);
+                    TrieNode nextNode = d.node.children.get(c);
                     if (nextNode == null) {
                         continue;
                     }
 
-                    stack.addLast(new Direction(ddx, ddy,
-                            false, addString(value, c), nextNode));
+                    stack.addLast(new Node(ddx, ddy, false, nextNode));
                 }
             }
         }
@@ -160,15 +193,11 @@ public class Boggle {
     }
 
     private static void setWordList(int k) {
-        matchWordList.sort(new Comparator<String>() {
-
-            @Override
-            public int compare(String o1, String o2) {
-                if (o1.length() != o2.length()) {
-                    return -(o1.length() - o2.length());
-                }
-                return o1.compareTo(o2);
+        matchWordList.sort((o1, o2) -> {
+            if (o1.length() != o2.length()) {
+                return -(o1.length() - o2.length());
             }
+            return o1.compareTo(o2);
         });
 
         if (matchWordList.size() > k) {
@@ -190,18 +219,12 @@ public class Boggle {
         }
     }
 
-
-
-    private static String addString(String word, char c) {
-
-        StringBuilder sb = new StringBuilder();
-        sb.append(word);
-        sb.append(c);
-        return sb.toString();
-    }
-
     private static boolean checkInArray(int i, int j) {
         return i >= 0 && i < M && j >= 0 && j < N;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(Boggle.solve(7, "exampleBoard.txt"));
     }
 
 }
