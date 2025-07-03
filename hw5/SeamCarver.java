@@ -67,8 +67,8 @@ public class SeamCarver {
             belowY = 0;
         }
 
-        int deltaX = calculateSquareGradient(picture().getRGB(leftX, y), picture().getRGB(rightX, y));
-        int deltaY = calculateSquareGradient(picture().getRGB(x, upY), picture().getRGB(x, belowY));
+        int deltaX = calculateSquareGradient(image.getARGB(leftX, y), image.getARGB(rightX, y));
+        int deltaY = calculateSquareGradient(image.getARGB(x, upY), image.getARGB(x, belowY));
         return deltaX + deltaY;
     }
 
