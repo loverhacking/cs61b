@@ -1,15 +1,22 @@
 import edu.princeton.cs.algs4.Picture;
-
-import java.awt.*;
+import java.awt.Color;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.min;
 
 public class SeamCarver {
 
-    private Picture image;
+    private final Picture image;
     private final int width;
     private final int height;
+
+    /**
+     * store energy and color for every pixel
+     * notice that it's organized by height * width (i.e. row * col)
+     * which is different from Color object
+     */
+    private Color[][] color;
+    private double[][] energyPixel;
 
     /** cost of minimum cost path ending at (i, j) */
     private double[][] M;
@@ -19,12 +26,30 @@ public class SeamCarver {
      * with pixel (0, 0) in the upper left corner
      * and pixel (W − 1, H − 1) in the bottom right corner.
      */
-
     public SeamCarver(Picture picture) {
         image = new Picture(picture);
         width = image.width();
         height = image.height();
+        initColor(picture);
+        initEnergy();
+    }
 
+    private void initColor(Picture picture) {
+        color = new Color[height][width];
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                color[y][x] = picture.get(x, y);
+            }
+        }
+    }
+
+    private void initEnergy() {
+        energyPixel = new double[height][width];
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                energyPixel[y][x] = energy(x, y);
+            }
+        }
     }
 
     // current picture
@@ -69,8 +94,8 @@ public class SeamCarver {
             belowY = 0;
         }
 
-        int deltaX = calculateSquareGradient(image.get(leftX, y), image.get(rightX, y));
-        int deltaY = calculateSquareGradient(image.get(x, upY), image.get(x, belowY));
+        int deltaX = calculateSquareGradient(color[y][leftX], color[y][rightX]);
+        int deltaY = calculateSquareGradient(color[upY][x], color[belowY][x]);
         return deltaX + deltaY;
     }
 
@@ -88,44 +113,37 @@ public class SeamCarver {
                 + (color1Green - color2Green) * (color1Green - color2Green);
     }
 
-
     // sequence of indices for vertical seam
     public int[] findVerticalSeam() {
 
-        int thisWidth = image.width();
-        int thisHeight = image.height();
-
         // energy cost of pixel at location (i, j)
-        double[][] energyPixel = new double[thisHeight][thisWidth];
-        M = new double[thisHeight][thisWidth];
-        int[] verticalSeam = new int[thisHeight];
+        M = new double[height][width];
+        int[] verticalSeam = new int[height];
 
         double min = Double.MAX_VALUE;
         int minIndex = 0;
 
-        for (int i = 0; i < thisHeight; i++) {
-            for (int j = 0; j < thisWidth; j++) {
-                energyPixel[i][j] = energy(j, i);
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
                 M[i][j] = energyPixel[i][j] + minEnergyCost(i, j);
 
                 // find min value in last row in M[][]
-                if (i == thisHeight - 1 && M[i][j] < min) {
+                if (i == height - 1 && M[i][j] < min) {
                     min = M[i][j];
                     minIndex = j;
                 }
             }
         }
 
-        verticalSeam[thisHeight - 1] = minIndex;
+        verticalSeam[height - 1] = minIndex;
 
         int j = minIndex;
-        for (int i = thisHeight - 1; i >= 1; i--) {
+        for (int i = height - 1; i >= 1; i--) {
             j = minMCost(i, j);
             verticalSeam[i - 1] = j;
         }
         return verticalSeam;
     }
-
 
     /** find min M[][] neighbors given i, j */
     private int minMCost(int i, int j) {
@@ -163,25 +181,76 @@ public class SeamCarver {
 
     }
 
-
     // sequence of indices for horizontal seam
     public  int[] findHorizontalSeam() {
-        transImage();
-        int[] horizontalSeam = findVerticalSeam();
-        transImage();
+
+        /** minimum cost path ending at (row i, col j) */
+        double[][] minCost = new double[height][width];
+
+        int[] horizontalSeam = new int[width];
+
+        for (int j = 0; j < width; j++) {
+            for (int i = 0; i < height; i++) {
+                minCost[i][j] = energyPixel[i][j] + minHorizontalEnergyCost(i, j, minCost);
+            }
+        }
+
+        // find min value in the last column in minCost[][]
+        double min = Double.POSITIVE_INFINITY;
+        int minIndex = 0;
+        for (int i = 0; i < height; i++) {
+            if (minCost[i][width - 1] < min) {
+                min = minCost[i][width - 1];
+                minIndex = i;
+            }
+        }
+        horizontalSeam[width - 1] = minIndex;
+
+        // trace back from the last column to form path
+        int i = minIndex;
+        for (int j = width - 1; j >= 1; j--) {
+            i = minHorizontalCost(i, j, minCost);
+            horizontalSeam[j - 1] = i;
+        }
         return horizontalSeam;
     }
 
+    /** find pathTo[i][j] given pixel (row i, col j) */
+    private int minHorizontalCost(int i, int j, double[][] minCost) {
 
-    /** transpose the image */
-    private void transImage() {
-        Picture newImage = new Picture(image.height(), image.width());
-        for (int i = 0; i < newImage.width(); i++) {
-            for (int j = 0; j < newImage.height(); j++) {
-                newImage.set(i, j, image.get(j, i));
-            }
+        // special case: height == 1: no need to compare
+        if (height == 1) {
+            return i;
         }
-        image = newImage;
+
+        if (i == 0) {
+            return minCost[i][j - 1] > minCost[i + 1][j - 1] ? i + 1 : i;
+        }
+        if (i == height - 1) {
+            return minCost[i - 1][j - 1] > minCost[i][j - 1] ? i : i - 1;
+        }
+
+        int tempMin = minCost[i - 1][j - 1] > minCost[i][j - 1] ? i : i - 1;
+        return minCost[tempMin][j - 1] > minCost[i + 1][j - 1] ? i + 1 : tempMin;
+    }
+
+    private double minHorizontalEnergyCost(int i, int j, double[][] minCost) {
+        if (j == 0) {
+            return 0;
+        }
+
+        // special case: height == 1: no need to compare
+        if (height == 1) {
+            return minCost[i][j - 1];
+        }
+
+        if (i == 0) {
+            return Math.min(minCost[i][j - 1], minCost[i + 1][j - 1]);
+        }
+        if (i == height - 1) {
+            return Math.min(minCost[i][j - 1], minCost[i - 1][j - 1]);
+        }
+        return Math.min(minCost[i - 1][j - 1], Math.min(minCost[i][j - 1], minCost[i + 1][j - 1]));
     }
 
     // remove horizontal seam from picture
