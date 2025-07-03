@@ -123,7 +123,6 @@ public class Boggle {
         if (matchWordList.size() > k) {
             matchWordList = new LinkedList<>(matchWordList.subList(0, k));
         }
-
         return matchWordList;
     }
 
@@ -163,13 +162,11 @@ public class Boggle {
             if (d.node.word != null && d.node.uid != uid) {
                 matchWordList.add(d.node.word);
                 d.node.uid = uid;
-                //setWordList(k);
             }
 
             // search all the neighbors
             for (int i = -1; i <= 1; i++) {
                 for (int j = -1; j <= 1; j++) {
-
                     // skip itself
                     if (i == 0 && j == 0) {
                         continue;
@@ -200,20 +197,6 @@ public class Boggle {
                     stack.addLast(new Node(ddx, ddy, false, nextNode));
                 }
             }
-        }
-
-    }
-
-    private static void setWordList(int k) {
-        matchWordList.sort((o1, o2) -> {
-            if (o1.length() != o2.length()) {
-                return -(o1.length() - o2.length());
-            }
-            return o1.compareTo(o2);
-        });
-
-        if (matchWordList.size() > k) {
-            matchWordList.removeLast();
         }
 
     }
