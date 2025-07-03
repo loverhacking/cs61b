@@ -1,42 +1,40 @@
 package hw2;
 
-import edu.princeton.cs.introcs.StdOut;
 import edu.princeton.cs.introcs.StdRandom;
 import edu.princeton.cs.introcs.StdStats;
 
 public class PercolationStats {
 
-    private int N;
-    private int T;
-    private double[] percentiles;
-    private PercolationFactory pf;
+    private double mean;
+    private double stddev;
+    private double confidenceLo;
+    private double confidenceHi;
 
     // perform T independent experiments on an N-by-N grid
     public PercolationStats(int N, int T, PercolationFactory pf) {
         if (N <= 0 || T <= 0) {
             throw new IllegalArgumentException();
         }
-        this.N = N;
-        this.T = T;
-        this.pf = pf;
-        this.percentiles = new double[T];
-        monteCarloSimulation();
+        monteCarloSimulation(pf, N, T);
     }
 
-    private void monteCarloSimulation() {
+    private void monteCarloSimulation(PercolationFactory pf, int N, int T) {
+        double[] percentiles = new double[T];
         for (int i = 0; i < T; i++) {
             Percolation p = pf.make(N);
 
             while (!p.percolates()) {
-                opensite(p);
+                opensite(p, N);
             }
-
             percentiles[i] = (double) p.numberOfOpenSites() / (N * N);
         }
-
+        mean = StdStats.mean(percentiles);
+        stddev = StdStats.stddev(percentiles);
+        confidenceLo = mean - 1.96 * stddev / Math.sqrt(T);
+        confidenceHi = mean + 1.96 * stddev / Math.sqrt(T);
     }
 
-    private void opensite(Percolation p) {
+    private void opensite(Percolation p, int N) {
         int row = StdRandom.uniform(N);
         int col = StdRandom.uniform(N);
 
@@ -46,40 +44,22 @@ public class PercolationStats {
 
     // sample mean of percolation threshold
     public double mean() {
-        return StdStats.mean(percentiles);
+        return mean;
     }
 
     // sample standard deviation of percolation threshold
     public double stddev() {
-        return StdStats.stddev(percentiles);
+        return stddev;
     }
 
     // low endpoint of 95% confidence interval
     public double confidenceLow() {
-        return mean() - 1.96 * stddev() / Math.sqrt(T);
+        return confidenceLo;
     }
 
     // high endpoint of 95% confidence interval
     public double confidenceHigh() {
-        return mean() + 1.96 * stddev() / Math.sqrt(T);
+        return confidenceHi;
     }
-
-    // Runtime Analysis
-//    public static void main(String[] args) {
-//
-//        double[] a = new double[27];
-//        int i = 0;
-//        for (int N = 20; N < 300; N = N + 10) {
-//            Stopwatch sw = new Stopwatch();
-//
-//            PercolationStats ps = new PercolationStats(N, 10, new PercolationFactory());
-//
-//            double time1 = sw.elapsedTime();
-//            a[i] = time1;
-//            i++;
-//            StdOut.printf("N = %d ", N);
-//            StdOut.printf("(%.2f seconds)\n", time1);
-//        }
-//    }
 
 }
