@@ -1,6 +1,5 @@
 package hw2;
 
-import edu.princeton.cs.algs4.QuickFindUF;
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 
@@ -16,8 +15,6 @@ public class Percolation {
      * using ufWithVirtualBottomSite.
      */
 
-    //private final QuickFindUF ufWithVirtualBottomSite;
-    //private final QuickFindUF ufWithoutVirtualBottomSite;
     private final WeightedQuickUnionUF ufWithVirtualBottomSite;
     private final WeightedQuickUnionUF ufWithoutVirtualBottomSite;
 

@@ -39,7 +39,6 @@ public class PercolationStats {
         int col = StdRandom.uniform(N);
 
         p.open(row, col);
-
     }
 
     // sample mean of percolation threshold
