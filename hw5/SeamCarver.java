@@ -1,5 +1,7 @@
 import edu.princeton.cs.algs4.Picture;
 
+import java.awt.*;
+
 import static java.lang.Math.abs;
 import static java.lang.Math.min;
 
@@ -67,35 +69,25 @@ public class SeamCarver {
             belowY = 0;
         }
 
-        int deltaX = calculateSquareGradient(image.getRGB(leftX, y), image.getRGB(rightX, y));
-        int deltaY = calculateSquareGradient(image.getRGB(x, upY), image.getRGB(x, belowY));
+        int deltaX = calculateSquareGradient(image.get(leftX, y), image.get(rightX, y));
+        int deltaY = calculateSquareGradient(image.get(x, upY), image.get(x, belowY));
         return deltaX + deltaY;
     }
 
-    private int calculateSquareGradient(int color1, int color2) {
-        int color1Red = getRed(color1);
-        int color2Red = getRed(color2);
+    private int calculateSquareGradient(Color color1, Color color2) {
+        int color1Red = color1.getRed();
+        int color2Red = color2.getRed();
 
-        int color1Blue = getBlue(color1);
-        int color2Blue = getBlue(color2);
+        int color1Blue = color1.getBlue();
+        int color2Blue = color2.getBlue();
 
-        int color1Green = getGreen(color1);
-        int color2Green = getGreen(color2);
+        int color1Green = color1.getGreen();
+        int color2Green = color2.getGreen();
         return (color1Red - color2Red) * (color1Red - color2Red)
                 + (color1Blue - color2Blue) * (color1Blue - color2Blue)
                 + (color1Green - color2Green) * (color1Green - color2Green);
     }
 
-    // helper methods to get int
-    private int getRed(int rgb) {
-        return (rgb >> 16) & 0xFF;
-    }
-    private int getGreen(int rgb) {
-        return (rgb >> 8) & 0xFF;
-    }
-    private int getBlue(int rgb) {
-        return (rgb) & 0xFF;
-    }
 
     // sequence of indices for vertical seam
     public int[] findVerticalSeam() {
